@@ -4,67 +4,57 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.command.ConditionalCommand;
+import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.gamepad.GamepadEx;
+import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
+
+import org.firstinspires.ftc.teamcode.Drivetrain;
+import org.firstinspires.ftc.teamcode.Robot;
 
 @TeleOp(name = "One Controller TeleOp")
 public class OneController extends OpMode {
-    private DcMotor frontRight;
-    private DcMotor frontLeft;
-    private DcMotor backRight;
-    private DcMotor backLeft;
+    private Robot robot;
+    private GamepadEx driver1;
+    private Drivetrain.DriveState driveState;
     private double limiter;
 
     @Override
     public void init() {
-        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
-        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
-        backRight = hardwareMap.get(DcMotor.class, "backRight");
+        robot = new Robot(hardwareMap, telemetry);
+        driver1 = new GamepadEx(gamepad1);
 
-        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
+        driveState = Drivetrain.DriveState.ROBOT_CENTRIC;
         limiter = 0.5;
 
+        // Drive State Button
+        driver1.getGamepadButton(GamepadKeys.Button.TOUCHPAD)
+                .whenPressed(new ConditionalCommand(
+                        new InstantCommand(() -> driveState = Drivetrain.DriveState.ROBOT_CENTRIC),
+                        new InstantCommand(() -> driveState = Drivetrain.DriveState.FIELD_CENTRIC),
+                        () -> (driveState == Drivetrain.DriveState.FIELD_CENTRIC)
+                ));
+
+        // Fast Button
+        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenHeld(new InstantCommand(() -> limiter = 0.8))
+                .whenReleased(new InstantCommand(() -> limiter = 0.5));
+
         telemetry.addData("Status", "Initialized");
+        telemetry.addData("Drive Mode", driveState);
         telemetry.update();
     }
 
     @Override
     public void loop() {
-        float FLPower = (-gamepad1.left_stick_y + gamepad1.right_stick_x) + gamepad1.left_stick_x;
-        float FRPower = (-gamepad1.left_stick_y - gamepad1.right_stick_x) - gamepad1.left_stick_x;
-        float BLPower = (-gamepad1.left_stick_y + gamepad1.right_stick_x) - gamepad1.left_stick_x;
-        float BRPower = (-gamepad1.left_stick_y - gamepad1.right_stick_x) + gamepad1.left_stick_x;
+        CommandScheduler.getInstance().run();
+        driver1.readButtons();
 
-        if (gamepad1.right_bumper) limiter = 0.8;
-        else limiter = 0.5;
+        robot.drive(driveState, driver1, limiter);
 
-        frontLeft.setPower(FLPower * limiter);
-        frontRight.setPower(FRPower * limiter);
-        backLeft.setPower(BLPower * limiter);
-        backRight.setPower(BRPower * limiter);
-
-        telemetry.addData("FL Power:", FLPower);
-        telemetry.addData("FR Power:", FRPower);
-        telemetry.addData("BL Power:", BLPower);
-        telemetry.addData("BR Power:", BRPower);
+        telemetry.addData("Drive Mode", driveState);
+        telemetry.addData("Drive Limiter", limiter);
         telemetry.update();
     }
 }
