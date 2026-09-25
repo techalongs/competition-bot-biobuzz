@@ -48,13 +48,7 @@ public class Drivetrain {
         this.imu = imu;
     }
 
-    public void drive(Drivetrain.DriveState state, GamepadEx gamepad, double limiter) {
-        if (state == Drivetrain.DriveState.ROBOT_CENTRIC) driveRobotCentric(gamepad, limiter);
-        else if (state == Drivetrain.DriveState.FIELD_CENTRIC) driveFieldCentric(gamepad, limiter);
-        else throw new IllegalArgumentException("Not a valid Drive State");
-    }
-
-    private void driveRobotCentric(GamepadEx gamepad, double limiter) {
+    public void driveRobotCentric(GamepadEx gamepad, double limiter) {
         double strafeSpeed = gamepad.getLeftX() * limiter;
         double forwardSpeed = gamepad.getLeftY() * limiter;
         double turnSpeed = gamepad.getRightX() * limiter;
@@ -62,7 +56,7 @@ public class Drivetrain {
         drivetrain.driveRobotCentric(strafeSpeed, forwardSpeed, turnSpeed);
     }
 
-    private void driveFieldCentric(GamepadEx gamepad, double limiter) {
+    public void driveFieldCentric(GamepadEx gamepad, double limiter) {
         double strafeSpeed = gamepad.getLeftX() * limiter;
         double forwardSpeed = gamepad.getLeftY() * limiter;
         double turnSpeed = gamepad.getRightX() * limiter;
