@@ -11,7 +11,7 @@ public class Launcher {
     public Launcher(HardwareMap hardwareMap, String flywheel) {
         this.flywheel = new MotorEx(hardwareMap, flywheel); // TODO: add customCPR (28?) and customRPM (6000?)
         this.flywheel.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-        this.flywheel.setInverted(false);
+        this.flywheel.setInverted(true);
         this.flywheel.setRunMode(Motor.RunMode.RawPower);
 
         power = 0.1;
@@ -31,5 +31,9 @@ public class Launcher {
 
     public void decreaseSpeed() {
         this.power -= 0.1;
+    }
+
+    public double getPower() {
+        return this.power;
     }
 }

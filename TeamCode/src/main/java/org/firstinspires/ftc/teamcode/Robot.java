@@ -62,6 +62,7 @@ public class Robot {
     }
 
     public Telemetry getTelemetry() {
+        telemetry.addData("Launcher Power", (isLauncherActive) ? launcher.getPower() : 0);
         return telemetry;
     }
 }

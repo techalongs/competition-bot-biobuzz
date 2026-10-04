@@ -37,7 +37,7 @@ public class OneController extends OpMode {
                 ));
 
         // Fast Button
-        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+        driver1.getGamepadButton(GamepadKeys.Button.B)
                 .whenHeld(new InstantCommand(() -> limiter = 0.8))
                 .whenReleased(new InstantCommand(() -> limiter = 0.5));
 
@@ -69,6 +69,7 @@ public class OneController extends OpMode {
 
         robot.drive(driveState, driver1, limiter);
 
+        telemetry = robot.getTelemetry();
         telemetry.addData("Drive Mode", driveState);
         telemetry.addData("Drive Limiter", limiter);
         telemetry.update();
