@@ -25,9 +25,9 @@ public class Drivetrain {
         MotorEx backRight = new MotorEx(hardwareMap, bR, Motor.GoBILDA.RPM_312);
 
         frontLeft.setInverted(false);
-        frontRight.setInverted(false);
+        frontRight.setInverted(true);
         backLeft.setInverted(true);
-        backRight.setInverted(false);
+        backRight.setInverted(true);
 
         frontLeft.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
