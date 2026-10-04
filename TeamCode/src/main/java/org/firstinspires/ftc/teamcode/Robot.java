@@ -15,14 +15,11 @@ public class Robot {
     private final Telemetry telemetry;
     private final NewIMU imu;
 
-    private boolean isLauncherActive;
-
     public Robot(HardwareMap hardwareMap, Telemetry telemetry) {
         imu = new NewIMU(hardwareMap, "imu");
         drivetrain = new Drivetrain(hardwareMap, "frontLeft", "frontRight", "backLeft", "backRight", imu);
 
         launcher = new Launcher(hardwareMap, "flywheel");
-        isLauncherActive = false;
 
         this.telemetry = telemetry;
     }
@@ -34,12 +31,10 @@ public class Robot {
     }
 
     public Command startLauncher() {
-        isLauncherActive = true;
         return new InstantCommand(launcher::startLauncher);
     }
 
     public Command stopLauncher() {
-        isLauncherActive = false;
         return new InstantCommand(launcher::stopLauncher);
     }
 
@@ -58,11 +53,11 @@ public class Robot {
     }
 
     public boolean isLauncherActive() {
-        return isLauncherActive;
+        return launcher.getPower() > 0;
     }
 
     public Telemetry getTelemetry() {
-        telemetry.addData("Launcher Power", (isLauncherActive) ? launcher.getPower() : 0);
+        telemetry.addData("Launcher Power", (isLauncherActive()) ? launcher.getPower() : 0);
         return telemetry;
     }
 }

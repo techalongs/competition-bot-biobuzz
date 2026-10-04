@@ -22,15 +22,16 @@ public class Launcher {
     }
 
     public void stopLauncher() {
-        this.flywheel.set(0);
+        this.power = 0;
+        this.flywheel.set(power);
     }
 
     public void increaseSpeed() {
-        this.power += 0.1;
+        if (this.power < 1) this.power += 0.1;
     }
 
     public void decreaseSpeed() {
-        this.power -= 0.1;
+        if (this.power > 0.1) this.power -= 0.1;
     }
 
     public double getPower() {
