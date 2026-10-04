@@ -41,6 +41,22 @@ public class OneController extends OpMode {
                 .whenHeld(new InstantCommand(() -> limiter = 0.8))
                 .whenReleased(new InstantCommand(() -> limiter = 0.5));
 
+        // Launcher Start/Stop Button
+        driver1.getGamepadButton(GamepadKeys.Button.TRIANGLE)
+                .whenPressed(new ConditionalCommand(
+                        robot.startLauncher(),
+                        robot.stopLauncher(),
+                        () -> (robot.isLauncherActive())
+                ));
+
+        // Launcher Speed Buttons
+        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(robot.increaseLauncherSpeed());
+
+        driver1.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenPressed(robot.decreaseLauncherSpeed());
+
+        // Telemetry
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Drive Mode", driveState);
         telemetry.update();
