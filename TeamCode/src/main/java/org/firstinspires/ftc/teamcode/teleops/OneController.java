@@ -40,10 +40,10 @@ public class OneController extends OpMode {
                 .whenReleased(new InstantCommand(() -> limiter = 0.5));
 
         // Launcher Start/Stop Button
-        driver1.getGamepadButton(GamepadKeys.Button.TRIANGLE)
+        driver1.getGamepadButton(GamepadKeys.Button.Y)
                 .whenPressed(new ConditionalCommand(
-                        robot.startLauncher(),
                         robot.stopLauncher(),
+                        robot.startLauncher(),
                         () -> (robot.isLauncherActive())
                 ));
 

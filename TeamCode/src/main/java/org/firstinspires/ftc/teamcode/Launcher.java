@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.util.Range;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 
 public class Launcher {
+    private final static Range<Double> POWER_RANGE = Range.create(-1.0, 1.0);
     private final MotorEx flywheel;
     private double power;
 
@@ -27,14 +30,16 @@ public class Launcher {
     }
 
     public void increaseSpeed() {
-        if (this.power < 1) this.power += 0.1;
+        this.power += 0.1;
+        this.power = POWER_RANGE.clamp(this.power);
     }
 
     public void decreaseSpeed() {
-        if (this.power > 0.1) this.power -= 0.1;
+        this.power -= 0.1;
+        this.power = POWER_RANGE.clamp(this.power);
     }
 
     public double getPower() {
-        return this.power;
+        return flywheel.getRawPower();
     }
 }

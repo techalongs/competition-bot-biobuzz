@@ -53,11 +53,11 @@ public class Robot {
     }
 
     public boolean isLauncherActive() {
-        return launcher.getPower() > 0;
+        return launcher.getPower() != 0;
     }
 
     public Telemetry getTelemetry() {
-        telemetry.addData("Launcher Power", (isLauncherActive()) ? launcher.getPower() : 0);
+        telemetry.addData("Launcher Power", launcher.getPower());
         return telemetry;
     }
 }
