@@ -39,6 +39,14 @@ public class OneController extends OpMode {
                 .whenHeld(new InstantCommand(() -> limiter = 0.8))
                 .whenReleased(new InstantCommand(() -> limiter = 0.5));
 
+        // Intake Start/Stop Button
+        driver1.getGamepadButton(GamepadKeys.Button.SQUARE)
+                .whenPressed(new ConditionalCommand(
+                        robot.stopIntake(),
+                        robot.startIntake(),
+                        () -> (robot.isIntakeActive())
+                ));
+
         // Launcher Start/Stop Button
         driver1.getGamepadButton(GamepadKeys.Button.Y)
                 .whenPressed(new ConditionalCommand(
