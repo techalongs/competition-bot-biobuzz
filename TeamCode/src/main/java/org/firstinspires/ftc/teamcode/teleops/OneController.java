@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
@@ -37,10 +35,26 @@ public class OneController extends OpMode {
                 ));
 
         // Fast Button
-        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+        driver1.getGamepadButton(GamepadKeys.Button.B)
                 .whenHeld(new InstantCommand(() -> limiter = 0.8))
                 .whenReleased(new InstantCommand(() -> limiter = 0.5));
 
+        // Launcher Start/Stop Button
+        driver1.getGamepadButton(GamepadKeys.Button.Y)
+                .whenPressed(new ConditionalCommand(
+                        robot.stopLauncher(),
+                        robot.startLauncher(),
+                        () -> (robot.isLauncherActive())
+                ));
+
+        // Launcher Speed Buttons
+        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(robot.increaseLauncherSpeed());
+
+        driver1.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenPressed(robot.decreaseLauncherSpeed());
+
+        // Telemetry
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Drive Mode", driveState);
         telemetry.update();
@@ -53,6 +67,7 @@ public class OneController extends OpMode {
 
         robot.drive(driveState, driver1, limiter);
 
+        telemetry = robot.getTelemetry();
         telemetry.addData("Drive Mode", driveState);
         telemetry.addData("Drive Limiter", limiter);
         telemetry.update();
