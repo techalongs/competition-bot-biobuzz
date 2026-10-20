@@ -25,7 +25,7 @@ public class LogitechCamera implements HardwareDevice {
                 .setTagLibrary(AprilTagGameDatabase.getCurrentGameTagLibrary())
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
-                .setLensIntrinsics(1440.381342, 1435.602662, 959.8105025, 525.3844601)
+                .setLensIntrinsics(1440.381342, 1435.602662, 959.8105025, 525.3844601) // TODO: Get Lens Intrinsics
                 .build();
 
         visionPortal = new VisionPortal.Builder()
@@ -37,6 +37,7 @@ public class LogitechCamera implements HardwareDevice {
 
         while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {}
 
+        // TODO: review camera footage - ensure exposure and gain is okay
         ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
         exposureControl.setMode(ExposureControl.Mode.Manual);
         exposureControl.setExposure(5, TimeUnit.MILLISECONDS); // Minimize
