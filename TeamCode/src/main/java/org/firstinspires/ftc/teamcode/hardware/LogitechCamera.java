@@ -25,12 +25,13 @@ public class LogitechCamera implements HardwareDevice {
                 .setTagLibrary(AprilTagGameDatabase.getCurrentGameTagLibrary())
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
+                .setDrawAxes(true)
                 .setLensIntrinsics(1440.381342, 1435.602662, 959.8105025, 525.3844601) // TODO: Get Lens Intrinsics
                 .build();
 
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, id))
-                .setCameraResolution(new Size(1920, 1080))
+                .setCameraResolution(new Size(1920, 1080)) // TODO: Update resolution?? Can be better with Lens Intrinsics
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .addProcessor(processor)
                 .build();

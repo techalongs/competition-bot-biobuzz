@@ -6,16 +6,21 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 
+import org.firstinspires.ftc.teamcode.hardware.LogitechCamera;
+
 public class Launcher {
     private final static Range<Double> POWER_RANGE = Range.create(-1.0, 1.0);
     private final MotorEx flywheel;
+    private final LogitechCamera camera;
     private double power;
 
-    public Launcher(HardwareMap hardwareMap, String flywheel) {
+    public Launcher(HardwareMap hardwareMap, String flywheel, String camera) {
         this.flywheel = new MotorEx(hardwareMap, flywheel); // TODO: add customCPR (28?) and customRPM (6000?)
         this.flywheel.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
         this.flywheel.setInverted(true);
         this.flywheel.setRunMode(Motor.RunMode.RawPower);
+
+        this.camera = new LogitechCamera(hardwareMap, camera);
 
         power = 0.1;
     }
