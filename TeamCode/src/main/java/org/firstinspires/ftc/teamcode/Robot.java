@@ -24,7 +24,7 @@ public class Robot {
         drivetrain = new Drivetrain(hardwareMap, "frontLeft", "frontRight", "backLeft", "backRight", imu);
         intake = new Intake(hardwareMap, "intake");
 
-        launcher = new Launcher(hardwareMap, "flywheel", "camera"); // TODO: Change camera id
+        launcher = new Launcher(hardwareMap, "flywheel", "webcam");
 
         this.telemetry = telemetry;
     }
