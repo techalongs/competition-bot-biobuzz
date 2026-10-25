@@ -45,6 +45,7 @@ public class Auto extends OpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Auto Selected", autoType[0] + " " + autoType[1]);
 
+        telemetry.addLine();
         telemetry.addLine("INSTRUCTIONS:");
         telemetry.addLine("Press Triangle for High");
         telemetry.addLine("Press Cross for Low");
