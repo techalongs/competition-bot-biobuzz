@@ -51,20 +51,6 @@ public class Robot {
         return new InstantCommand(launcher::stopLauncher);
     }
 
-    public Command increaseLauncherSpeed() {
-        return new SequentialCommandGroup(
-                new InstantCommand(launcher::increaseSpeed),
-                new InstantCommand(launcher::startLauncher)
-        );
-    }
-
-    public Command decreaseLauncherSpeed() {
-        return new SequentialCommandGroup(
-                new InstantCommand(launcher::decreaseSpeed),
-                new InstantCommand(launcher::startLauncher)
-        );
-    }
-
     public boolean isIntakeActive() {
         return intake.getPower() != 0;
     }

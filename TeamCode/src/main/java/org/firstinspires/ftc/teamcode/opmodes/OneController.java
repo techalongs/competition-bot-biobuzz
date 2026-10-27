@@ -35,7 +35,7 @@ public class OneController extends OpMode {
                 ));
 
         // Fast Button
-        driver1.getGamepadButton(GamepadKeys.Button.CIRCLE)
+        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenHeld(new InstantCommand(() -> limiter = 0.8))
                 .whenReleased(new InstantCommand(() -> limiter = 0.5));
 
@@ -54,13 +54,6 @@ public class OneController extends OpMode {
                         robot.startLauncher(),
                         () -> (robot.isLauncherActive())
                 ));
-
-        // Launcher Speed Buttons
-        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(robot.increaseLauncherSpeed());
-
-        driver1.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(robot.decreaseLauncherSpeed());
 
         // Telemetry
         telemetry.addData("Status", "Initialized");
