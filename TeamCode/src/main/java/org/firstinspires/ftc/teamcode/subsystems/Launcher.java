@@ -11,8 +11,6 @@ import org.firstinspires.ftc.teamcode.hardware.LogitechCamera;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 
 import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class Launcher {
     private final double SHOOT_POWER = 0.8;
@@ -59,5 +57,9 @@ public class Launcher {
 
     public double getPower() {
         return flywheel.getRawPower();
+    }
+
+    public double getAngle() {
+        return turret.getRawPosition();
     }
 }

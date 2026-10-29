@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.InstantCommand;
-import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -61,6 +60,7 @@ public class Robot {
 
     public Telemetry getTelemetry() {
         telemetry.addData("Launcher Power", launcher.getPower());
+        telemetry.addData("Turret Angle", launcher.getAngle());
         telemetry.addData("Intake Power", intake.getPower());
         return telemetry;
     }

@@ -58,8 +58,4 @@ public class Auto extends OpMode {
     public void loop() {
 
     }
-
-    private void changeAutoType() {
-
-    }
 }
