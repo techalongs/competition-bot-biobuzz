@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import static org.firstinspires.ftc.teamcode.opmodes.TransferData.ALLIANCE;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
 import com.seattlesolvers.solverslib.hardware.servos.ServoEx;
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 
 import java.util.Comparator;
 
-public class Launcher {
+public class Launcher extends SubsystemBase {
     private final double SHOOT_POWER = 0.8;
     private final MotorEx flywheel;
     private final ServoEx turret;
