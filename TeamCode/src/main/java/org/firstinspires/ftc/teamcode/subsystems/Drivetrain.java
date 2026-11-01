@@ -25,7 +25,7 @@ public class Drivetrain extends SubsystemBase {
         MotorEx backLeft = new MotorEx(hardwareMap, bL, Motor.GoBILDA.RPM_312);
         MotorEx backRight = new MotorEx(hardwareMap, bR, Motor.GoBILDA.RPM_312);
 
-        frontLeft.setInverted(false);
+        frontLeft.setInverted(true);
         frontRight.setInverted(true);
         backLeft.setInverted(true);
         backRight.setInverted(true);
