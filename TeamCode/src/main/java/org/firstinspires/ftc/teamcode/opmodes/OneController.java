@@ -55,6 +55,9 @@ public class OneController extends OpMode {
                         () -> (robot.isLauncherActive())
                 ));
 
+        driver1.getGamepadButton(GamepadKeys.Button.CIRCLE)
+                .whenPressed(robot.autoaim());
+
         // Telemetry
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Drive Mode", driveState);

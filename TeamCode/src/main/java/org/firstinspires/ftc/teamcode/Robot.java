@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.Command;
+import com.seattlesolvers.solverslib.command.DeferredCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -10,6 +12,7 @@ import org.firstinspires.ftc.teamcode.hardware.NewIMU;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
+import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 
 public class Robot {
     private final Drivetrain drivetrain;
@@ -50,6 +53,17 @@ public class Robot {
         return new InstantCommand(launcher::stopLauncher);
     }
 
+    public Command autoaim() {
+        return new DeferredCommand(() -> {
+            AprilTagClusterDetection cluster = launcher.getCluster();
+            if (cluster == null) return new InstantCommand();
+            return new SequentialCommandGroup(
+                    new InstantCommand(launcher::resetTurret),
+                    new InstantCommand(() -> launcher.aim(cluster))
+            );
+        }, null);
+    }
+
     public boolean isIntakeActive() {
         return intake.getPower() != 0;
     }
@@ -61,6 +75,7 @@ public class Robot {
     public Telemetry getTelemetry() {
         telemetry.addData("Launcher Power", launcher.getPower());
         telemetry.addData("Turret Angle", launcher.getAngle());
+        telemetry.addData("Detection Angle", launcher.getClusterAngle());
         telemetry.addData("Intake Power", intake.getPower());
         return telemetry;
     }

@@ -25,7 +25,8 @@ public class Launcher extends SubsystemBase {
         this.flywheel.setInverted(true);
         this.flywheel.setRunMode(Motor.RunMode.RawPower);
 
-        this.turret = new ServoEx(hardwareMap, turret, 150); // TODO: Test and ensure range
+        // -45 to 30 degrees (possible total 80-86)
+        this.turret = new ServoEx(hardwareMap, turret, 0, 75); // TODO: Test and ensure range
         this.turret.setInverted(false);
 
         this.camera = new LogitechCamera(hardwareMap, camera);
@@ -39,21 +40,23 @@ public class Launcher extends SubsystemBase {
         this.flywheel.set(0);
     }
 
-    public void aim() {
-        // Minimize bearing
-
+    public AprilTagClusterDetection getCluster() {
         // Get closest cluster that pertains to our alliance
-        AprilTagClusterDetection cluster =
-                camera.getDetections().stream()
+        return camera.getDetections().stream()
                 .map(d -> (AprilTagClusterDetection) d)
                 .filter(c -> !c.metadata.name.contains(ALLIANCE)) // In alliance
                 .min(Comparator.comparingDouble(c -> c.ftcPose.y)) // Closest
                 .orElse(null);
+    }
 
-        if (cluster == null) return;
+    public void resetTurret() {
+        turret.set(38);
+    }
 
+    public void aim(AprilTagClusterDetection cluster) {
+        // Minimize bearing
         double bearing = cluster.ftcPose.bearing; // Positive - left, Negative - right
-        turret.set(turret.get() + bearing);
+        turret.set(turret.get() - bearing);
     }
 
     public double getPower() {
@@ -61,6 +64,11 @@ public class Launcher extends SubsystemBase {
     }
 
     public double getAngle() {
-        return turret.getRawPosition();
+        return turret.get();
+    }
+
+    public double getClusterAngle() {
+        AprilTagClusterDetection cluster = getCluster();
+        return (cluster != null) ? cluster.ftcPose.bearing : Double.NaN;
     }
 }
