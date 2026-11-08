@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 
+import java.util.List;
+
 public class Robot {
     private final Drivetrain drivetrain;
     private final Intake intake;
@@ -26,7 +28,11 @@ public class Robot {
         drivetrain = new Drivetrain(hardwareMap, "frontLeft", "frontRight", "backLeft", "backRight", imu);
         intake = new Intake(hardwareMap, "intake");
 
-        launcher = new Launcher(hardwareMap, "flywheel", "turret", "webcam");
+        launcher = new Launcher(hardwareMap, "flywheel", "turret", "switcher", "webcam");
+        launcher.setDefaultCommand(new DeferredCommand(() -> {
+              autoaim();
+              return new InstantCommand();
+        }, List.of(launcher)).perpetually());
 
         this.telemetry = telemetry;
     }
