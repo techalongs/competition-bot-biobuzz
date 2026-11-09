@@ -26,7 +26,7 @@ public class Robot {
     public Robot(HardwareMap hardwareMap, Telemetry telemetry) {
         imu = new NewIMU(hardwareMap, "imu");
         drivetrain = new Drivetrain(hardwareMap, "frontLeft", "frontRight", "backLeft", "backRight", imu);
-        intake = new Intake(hardwareMap, "intake");
+        intake = new Intake(hardwareMap, "rightIntake", "leftIntake");
 
         launcher = new Launcher(hardwareMap, "flywheel", "turret", "switcher", "webcam");
         launcher.setDefaultCommand(new DeferredCommand(() -> {
