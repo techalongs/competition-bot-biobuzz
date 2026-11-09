@@ -10,6 +10,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Launcher;
 
 @TeleOp(name = "One Controller TeleOp")
 public class OneController extends OpMode {
@@ -53,6 +54,14 @@ public class OneController extends OpMode {
                         robot.stopLauncher(),
                         robot.startLauncher(),
                         () -> (robot.isLauncherActive())
+                ));
+
+        // Switcher Position Toggle
+        driver1.getGamepadButton(GamepadKeys.Button.CIRCLE)
+                .whenPressed(new ConditionalCommand(
+                        robot.setSwitcher(Launcher.SwitcherPosition.POLLEN),
+                        robot.setSwitcher(Launcher.SwitcherPosition.NECTAR),
+                        () -> (robot.getSwitcherPosition() == Launcher.SwitcherPosition.NECTAR)
                 ));
 
         // Telemetry

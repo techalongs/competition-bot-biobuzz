@@ -17,9 +17,21 @@ public class Launcher extends SubsystemBase {
     private final double SHOOT_POWER = 0.8;
     private final MotorEx flywheel;
     private final ServoEx turret;
+    private final ServoEx switcher;
     private final LogitechCamera camera;
 
-    public Launcher(HardwareMap hardwareMap, String flywheel, String turret, String camera) {
+    public enum SwitcherPosition {
+        POLLEN(0),
+        NECTAR(0.8);
+
+        final double pos;
+
+        SwitcherPosition(double pos) {
+            this.pos = pos;
+        }
+    }
+
+    public Launcher(HardwareMap hardwareMap, String flywheel, String turret, String switcher, String camera) {
         this.flywheel = new MotorEx(hardwareMap, flywheel); // TODO: add customCPR (28?) and customRPM (6000?)
         this.flywheel.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
         this.flywheel.setInverted(true);
@@ -28,6 +40,10 @@ public class Launcher extends SubsystemBase {
         // -45 to 30 degrees (possible total 80-86)
         this.turret = new ServoEx(hardwareMap, turret, 0, 75); // TODO: Test and ensure range
         this.turret.setInverted(false);
+
+        this.switcher = new ServoEx(hardwareMap, switcher, 0.8);
+        this.switcher.setInverted(false);
+        // pollen = 0, nectar = 1
 
         this.camera = new LogitechCamera(hardwareMap, camera);
     }
@@ -38,6 +54,10 @@ public class Launcher extends SubsystemBase {
 
     public void stopLauncher() {
         this.flywheel.set(0);
+    }
+
+    public void setPosition(SwitcherPosition position) {
+        this.switcher.set(position.pos);
     }
 
     public AprilTagClusterDetection getCluster() {
@@ -70,5 +90,10 @@ public class Launcher extends SubsystemBase {
     public double getClusterAngle() {
         AprilTagClusterDetection cluster = getCluster();
         return (cluster != null) ? cluster.ftcPose.bearing : Double.NaN;
+    }
+
+    public SwitcherPosition getSwitcherPosition() {
+        return (switcher.getRawPosition() == SwitcherPosition.POLLEN.pos) ?
+                SwitcherPosition.POLLEN : SwitcherPosition.NECTAR;
     }
 }

@@ -70,6 +70,10 @@ public class Robot {
         }, null);
     }
 
+    public Command setSwitcher(Launcher.SwitcherPosition position) {
+        return new InstantCommand(() -> launcher.setPosition(position));
+    }
+
     public boolean isIntakeActive() {
         return intake.getPower() != 0;
     }
@@ -78,8 +82,13 @@ public class Robot {
         return launcher.getPower() != 0;
     }
 
+    public Launcher.SwitcherPosition getSwitcherPosition() {
+        return launcher.getSwitcherPosition();
+    }
+
     public Telemetry getTelemetry() {
         telemetry.addData("Launcher Power", launcher.getPower());
+        telemetry.addData("Switcher Position", launcher.getSwitcherPosition());
         telemetry.addData("Turret Angle", launcher.getAngle());
         telemetry.addData("Detection Angle", launcher.getClusterAngle());
         telemetry.addData("Intake Power", intake.getPower());
