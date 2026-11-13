@@ -14,11 +14,11 @@ public class Intake extends SubsystemBase {
         MotorEx leftIntake = new MotorEx(hardwareMap, lIntake);
 
         rightIntake.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        rightIntake.setInverted(false);
+        rightIntake.setInverted(true);
         rightIntake.setRunMode(Motor.RunMode.RawPower);
 
         leftIntake.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        leftIntake.setInverted(true);
+        leftIntake.setInverted(false);
         leftIntake.setRunMode(Motor.RunMode.RawPower);
 
         intake = new MotorGroup(rightIntake, leftIntake);
