@@ -14,7 +14,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import java.util.Comparator;
 
 public class Launcher extends SubsystemBase {
-    private final double SHOOT_POWER = 0.8;
+    private final double SHOOT_POWER = 0.5; // ~0.18 = flower, ~0.5 = hive
     private final MotorEx flywheel;
     private final ServoEx turret;
     private final ServoEx switcher;
@@ -34,11 +34,11 @@ public class Launcher extends SubsystemBase {
     public Launcher(HardwareMap hardwareMap, String flywheel, String turret, String switcher, String camera) {
         this.flywheel = new MotorEx(hardwareMap, flywheel); // TODO: add customCPR (28?) and customRPM (6000?)
         this.flywheel.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-        this.flywheel.setInverted(true);
+        this.flywheel.setInverted(false);
         this.flywheel.setRunMode(Motor.RunMode.RawPower);
 
         // -45 to 30 degrees (possible total 80-86)
-        this.turret = new ServoEx(hardwareMap, turret, 0, 75); // TODO: Test and ensure range
+        this.turret = new ServoEx(hardwareMap, turret, 0, 86); // TODO: Test and ensure range
         this.turret.setInverted(false);
 
         this.switcher = new ServoEx(hardwareMap, switcher, 0.8);
