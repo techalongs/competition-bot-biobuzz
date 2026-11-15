@@ -27,6 +27,9 @@ public class OneController extends OpMode {
         driveState = Drivetrain.DriveState.ROBOT_CENTRIC;
         limiter = 0.5;
 
+        // Initialize turret
+        robot.resetTurret();
+
         // Drive State Button
         driver1.getGamepadButton(GamepadKeys.Button.TOUCHPAD)
                 .whenPressed(new ConditionalCommand(
@@ -63,6 +66,10 @@ public class OneController extends OpMode {
                         robot.setSwitcher(Launcher.SwitcherPosition.NECTAR),
                         () -> (robot.getSwitcherPosition() == Launcher.SwitcherPosition.NECTAR)
                 ));
+
+//        // Autoaim
+//        driver1.getGamepadButton(GamepadKeys.Button.CROSS)
+//                .whenPressed(robot.autoaim());
 
         // Telemetry
         telemetry.addData("Status", "Initialized");

@@ -29,10 +29,7 @@ public class Robot {
         intake = new Intake(hardwareMap, "rightIntake", "leftIntake");
 
         launcher = new Launcher(hardwareMap, "flywheel", "turret", "switcher", "webcam");
-        launcher.setDefaultCommand(new DeferredCommand(() -> {
-              autoaim();
-              return new InstantCommand();
-        }, List.of(launcher)).perpetually());
+        launcher.setDefaultCommand(autoaim());
 
         this.telemetry = telemetry;
     }
@@ -59,15 +56,16 @@ public class Robot {
         return new InstantCommand(launcher::stopLauncher);
     }
 
+    public Command resetTurret() {
+        return new InstantCommand(launcher::resetTurret);
+    }
+
     public Command autoaim() {
         return new DeferredCommand(() -> {
             AprilTagClusterDetection cluster = launcher.getCluster();
             if (cluster == null) return new InstantCommand();
-            return new SequentialCommandGroup(
-                    new InstantCommand(launcher::resetTurret),
-                    new InstantCommand(() -> launcher.aim(cluster))
-            );
-        }, null);
+            return new InstantCommand(() -> launcher.aim(cluster));
+        }, List.of(launcher));
     }
 
     public Command setSwitcher(Launcher.SwitcherPosition position) {
