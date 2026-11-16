@@ -1,0 +1,213 @@
+"""Offline tests for ftc_manual_dump.py. Run: python3 -m unittest discover -s tests"""
+import os
+import sys
+import tempfile
+import unittest
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+import ftc_manual_dump as man  # noqa: E402
+
+SPACER = "<span style='font:7.0pt \"Times New Roman\"'>&nbsp;&nbsp;&nbsp; </span>"
+
+# A trimmed copy of the hub page's markup: each link is followed by its version text.
+HUB = """<html><body><h1>Current Game and Season Materials</h1>
+<p><p><em>FIRST</em> Tech Challenge 2098-2099 Game &amp; Season Materials for</p><p>TESTGAME&#8482; presented by X</p></p>
+<table><tr><td>Competition Manual</td><td><ul>
+<li><a href="/ftc/game/manual">TESTGAME&#8482; Competition Manual</a>
+- Version TU03 (updated Oct 1, 2098)
+<ul><li><a href="/ftc/game/cm-html">TESTGAME&#8482; Competition Manual HTML</a>
+- Version TU03 (updated Oct 1, 2098)
+<ul></ul></li></ul></li></ul></td></tr>
+<tr><td>Manual Sections</td><td><details><summary>Manual Sections</summary><ul>
+<li><a href="/ftc/game/manual-01">Section 1: Introduction</a>
+- Version V1 (updated Sep 1, 2098)
+<ul></ul></li>
+<li><a href="/ftc/game/manual-02">Section 2: ROBOT Rules (R)</a>
+- Version TU02 (updated Sep 20, 2098)
+<ul></ul></li></ul></details></td></tr></table></body></html>"""
+
+# A trimmed Word export: cover, two sections, a rule, a note box, lists, tables, a figure.
+MANUAL = """<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<style>p {{margin:0}}</style></head><body lang=EN-US>
+<div class=WordSection1><p class=MsoNormal>Cover page</p><p class=MsoToc1>Contents 1</p></div>
+<div class=WordSection2>
+<h1><span>1{sp}Introduction</span></h1>
+<p class=MsoNormal>Welcome to <i>FIRST</i>.  Approx. (~610 cm) and part am-5850_Full.</p>
+<p class=MsoNormal>Deletions look like <s>this</s>.</p>
+<p class=MsoNormal style='display:none'>hidden text</p>
+<h2>1.1{sp}About</h2>
+<p class=MsoNormal><a href="https://www.firstinspires.org/">FIRST site</a> and
+<a href="#_Toc123">internal link</a>, e-mail <a href="mailto:help@example.org">help@example.org</a>.</p>
+</div>
+<div class=WordSection3>
+<h1>2{sp}ROBOT Rules (R)</h1>
+<div style='border-top:solid #4472C4 1.0pt;padding:10.0pt 0in'><p>Intro box.</p></div>
+<p class=RuleNumber-Robot><span id=R101></span><b>R101{sp}</b><span class=Headline-Evergreen>*It is your ROBOT.</span>
+The ROBOT must be <b>built</b><b> by</b> the team.</p>
+<p class=Rule-LetteredList>A.{sp}first item,</p>
+<p class=Rule-LetteredList>i.{sp}sub item</p>
+<div style='border:solid #ED7D31 1.5pt;background:#F4B083'>
+<p><span style='color:black'>A note.</span></p><p>Second line<br></p></div>
+<p class=MsoNormal>1.{sp}numbered step</p>
+<ol start=1 type=A><li>The first</li><li>The second</li></ol>
+<p class=MsoCaption>Figure 2-1: A figure</p>
+<p><img width=10 height=10 src="TEST%20Manual_files/image001.png" alt="A diagram "></p>
+<table class=MsoTable><tr><td><p><b>Term</b></p></td><td><p><b>Meaning</b></p></td></tr>
+<tr><td><p><b>CELL</b></p></td><td><p>a part | piece</p><p>second para</p></td></tr></table>
+<table><tr><td rowspan=2><p><b>Motor</b> X 12V</p></td><td><p>a</p></td></tr>
+<tr><td><p>b</p></td></tr></table>
+<p class=MsoNormal>&nbsp;</p>
+</div></body></html>""".format(sp=SPACER)
+
+INFO = {"version": "TU03", "date": "Oct 1, 2098", "game": "TESTGAME", "season": "2098-2099",
+        "sections": {1: "V1 (Sep 1, 2098)", 2: "TU02 (Sep 20, 2098)"}}
+
+
+def convert():
+    return man.convert(MANUAL, INFO)
+
+
+class Hub(unittest.TestCase):
+    def test_versions(self):
+        info = man.parse_hub(HUB)
+        self.assertEqual(info["version"], "TU03")
+        self.assertEqual(info["date"], "Oct 1, 2098")
+        self.assertEqual(info["pdf_version"], "TU03")
+        self.assertEqual(info["game"], "TESTGAME")
+        self.assertEqual(info["season"], "2098-2099")
+        self.assertEqual(info["sections"], {1: "V1 (Sep 1, 2098)", 2: "TU02 (Sep 20, 2098)"})
+
+    def test_layout_change_raises(self):
+        with self.assertRaises(man.FormatError):
+            man.parse_hub("<html><body><a href='/x'>Nothing</a></body></html>")
+
+
+class Decode(unittest.TestCase):
+    def test_declared_charset(self):
+        body = b'<meta charset="windows-1252"><p>team\x92s</p>'  # 0x92 is a curly apostrophe
+        self.assertIn("team’s", man.decode_page(body))
+
+
+class Convert(unittest.TestCase):
+    def setUp(self):
+        self.sections, self.files, self.images = convert()
+        self.intro = self.files["01-introduction.md"]
+        self.rules = self.files["02-robot-rules.md"]
+
+    def test_sections_and_cover_dropped(self):
+        self.assertEqual(list(self.files), ["01-introduction.md", "02-robot-rules.md"])
+        self.assertEqual([s["number"] for s in self.sections], [1, 2])
+        self.assertNotIn("Cover page", self.intro)
+        self.assertIn("\n# 1 Introduction\n", self.intro)
+        self.assertIn("\n## 1.1 About\n", self.intro)
+        self.assertTrue(self.intro.startswith("<!-- Generated by ftc_manual_dump.py"))
+
+    def test_inline_text(self):
+        self.assertIn("Welcome to *FIRST*. Approx. (~610 cm) and part am-5850_Full.", self.intro)
+        self.assertIn("Deletions look like ~~this~~.", self.intro)
+        self.assertNotIn("hidden text", self.intro)
+
+    def test_links(self):
+        self.assertIn("[FIRST site](https://www.firstinspires.org/) and internal link, "
+                      "e-mail <help@example.org>.", self.intro)
+
+    def test_rule_format(self):
+        self.assertIn("**R101** **\\*It is your ROBOT.** The ROBOT must be **built by** the team.",
+                      self.rules)
+        self.assertEqual(man.RULE_START_RE.findall(self.rules), ["R101"])
+
+    def test_list_markers_kept(self):
+        for line in ("A. first item,", "i. sub item", "1. numbered step", "A. The first",
+                     "B. The second"):
+            self.assertIn("\n" + line + "\n", self.rules)
+
+    def test_boxes_become_quotes(self):
+        self.assertIn("> Intro box.", self.rules)
+        self.assertIn("> A note.\n>\n> Second line\n\n", self.rules)
+
+    def test_figure(self):
+        self.assertIn("Figure 2-1: A figure\n\n![A diagram](images/image001.png)", self.rules)
+        self.assertEqual(self.images, {"image001.png": "TEST%20Manual_files/image001.png"})
+
+    def test_simple_table_is_markdown(self):
+        self.assertIn("| Term | Meaning |\n|---|---|\n| **CELL** | a part \\| piece second para |",
+                      self.rules)
+
+    def test_merged_cells_stay_html(self):
+        self.assertIn('<table>\n<tr>\n<td rowspan="2"><strong>Motor</strong> X 12V</td>\n'
+                      '<td>a</td>\n</tr>', self.rules)
+
+
+class Escape(unittest.TestCase):
+    def test_markdown_characters(self):
+        self.assertEqual(man.escape("a*b `c` _x_ snake_case <tag> 3 < 4"),
+                         "a\\*b \\`c\\` \\_x\\_ snake_case \\<tag> 3 < 4")
+
+    def test_paragraph_start(self):
+        self.assertEqual(man.paragraph("# not a heading"), "\\# not a heading")
+        self.assertEqual(man.paragraph("- not a bullet"), "\\- not a bullet")
+        self.assertEqual(man.paragraph("A. kept"), "A. kept")
+
+
+class FigureNames(unittest.TestCase):
+    def test_plain_names(self):
+        self.assertEqual(man.figure_name("TEST%20Manual_files/image001.png"), "image001.png")
+        self.assertEqual(man.figure_name("https://x.org/a/image002.jpg?v=1"), "image002.jpg")
+        self.assertEqual(man.figure_name(""), "")
+
+    def test_traversal_rejected(self):
+        for src in ("x/..%2F..%2Fevil.png", "..%5C..%5Cevil.png", "x/%2E%2E", "x/.hidden",
+                    "x/a%00b.png", "x/..", "x/a b.png"):
+            with self.subTest(src=src), self.assertRaises(man.FormatError):
+                man.figure_name(src)
+
+    def test_safe_join(self):
+        with tempfile.TemporaryDirectory() as folder:
+            self.assertEqual(man.safe_join(folder, "a.png"),
+                             os.path.join(os.path.realpath(folder), "a.png"))
+            for name in ("../a.png", "sub/a.png", "/etc/passwd", ".."):
+                with self.subTest(name=name), self.assertRaises(man.FormatError):
+                    man.safe_join(folder, name)
+
+
+class OutputFolder(unittest.TestCase):
+    def test_version_and_foreign_files(self):
+        with tempfile.TemporaryDirectory() as folder:
+            self.assertIsNone(man.existing_version(folder))
+            sections, files, images = convert()
+            readme = man.render_readme(INFO, sections, 1, len(images), "2098-10-02", man.DEFAULT_HUB)
+            with open(os.path.join(folder, "README.md"), "w", encoding="utf-8") as handle:
+                handle.write(readme)
+            self.assertEqual(man.existing_version(folder), "TU03")
+            self.assertIn("| 2 | [02-robot-rules.md](02-robot-rules.md) | ROBOT Rules (R) | TU02 "
+                          "(Sep 20, 2098) |", readme)
+            os.mkdir(os.path.join(folder, "images"))
+            open(os.path.join(folder, "01-intro.md"), "w").close()
+            self.assertEqual(man.foreign_files(folder), [])
+            open(os.path.join(folder, "notes.txt"), "w").close()
+            self.assertEqual(man.foreign_files(folder), ["notes.txt"])
+
+    def test_changed_files_ignores_version_line(self):
+        with tempfile.TemporaryDirectory() as old, tempfile.TemporaryDirectory() as new:
+            for folder, version, body in ((old, "TU01", "same\n"), (new, "TU02", "same\n")):
+                with open(os.path.join(folder, "01-a.md"), "w") as handle:
+                    handle.write("<!-- %s -->\n%s" % (version, body))
+            for folder, body in ((old, "before\n"), (new, "after\n")):
+                with open(os.path.join(folder, "02-b.md"), "w") as handle:
+                    handle.write("<!-- v -->\n" + body)
+            self.assertEqual(man.changed_files(old, new), ["02-b.md"])
+
+    def test_replace_dir(self):
+        with tempfile.TemporaryDirectory() as parent:
+            out, new = os.path.join(parent, "manual"), os.path.join(parent, "new")
+            os.mkdir(out)
+            open(os.path.join(out, "01-old.md"), "w").close()
+            os.mkdir(new)
+            open(os.path.join(new, "01-new.md"), "w").close()
+            man.replace_dir(new, out)
+            self.assertEqual(os.listdir(out), ["01-new.md"])
+            self.assertEqual(sorted(os.listdir(parent)), ["manual"])
+
+
+if __name__ == "__main__":
+    unittest.main()

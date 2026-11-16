@@ -1,0 +1,46 @@
+--------- beginning of main
+11-15 18:00:01.100  1234  1234 I RobotCore: App info: version=12.0.0 appId=com.qualcomm.ftcrobotcontroller
+11-15 18:00:01.200  1234  1250 V RobotCore: saving logcat to /storage/emulated/0/robotControllerLog.txt
+11-15 18:00:05.000  1234  1260 I EventLoopManager: onNetworkConnectionEvent: CONNECTION_INFO_AVAILABLE
+11-15 18:01:10.000  1234  1260 I RobotCore: Attempting to switch to OpMode One Controller TeleOp
+11-15 18:01:12.500  1234  1300 I LoopStats: opmode=One_Controller_TeleOp n=80 avg_ms=12.4 max_ms=31.0 batt_v=12.61
+11-15 18:01:13.500  1234  1300 I LoopStats: opmode=One_Controller_TeleOp n=79 avg_ms=12.6 max_ms=44.2 batt_v=12.20
+11-15 18:01:14.010  1234  1300 E OpModeManager: User code threw an uncaught exception
+11-15 18:01:14.011  1234  1300 E OpModeManager: java.lang.NullPointerException: Attempt to invoke virtual method 'void com.seattlesolvers.solverslib.hardware.motors.MotorEx.set(double)' on a null object reference
+11-15 18:01:14.012  1234  1300 E OpModeManager: 	at org.firstinspires.ftc.teamcode.subsystems.Launcher.startLauncher(Launcher.java:29)
+11-15 18:01:14.013  1234  1300 E OpModeManager: 	at org.firstinspires.ftc.teamcode.Robot.lambda$startLauncher$2(Robot.java:47)
+11-15 18:01:14.014  1234  1300 E OpModeManager: 	at com.seattlesolvers.solverslib.command.InstantCommand.initialize(InstantCommand.java:39)
+11-15 18:01:14.015  1234  1300 E OpModeManager: 	at com.seattlesolvers.solverslib.command.CommandScheduler.run(CommandScheduler.java:210)
+11-15 18:01:14.016  1234  1300 E OpModeManager: 	at org.firstinspires.ftc.teamcode.opmodes.OneController.loop(OneController.java:73)
+11-15 18:01:14.017  1234  1300 E OpModeManager: 	at com.qualcomm.robotcore.eventloop.opmode.OpModeInternal.internalLoop(OpModeInternal.java:120)
+11-15 18:01:14.100  1234  1260 I RobotCore: Attempting to switch to OpMode $Stop$Robot$
+11-15 18:02:00.000  1234  1260 I RobotCore: {  412 00.000} Attempting to switch to OpMode One Controller TeleOp
+11-15 18:02:03.010  1234  1300 E OpModeManager: {  412 03.010} User code threw an uncaught exception
+11-15 18:02:03.011  1234  1300 E OpModeManager: {  412 03.011} java.lang.NullPointerException: Attempt to invoke virtual method 'void com.seattlesolvers.solverslib.hardware.motors.MotorEx.set(double)' on a null object reference
+11-15 18:02:03.012  1234  1300 E OpModeManager: {  412 03.012} 	at org.firstinspires.ftc.teamcode.subsystems.Launcher.startLauncher(Launcher.java:29)
+11-15 18:02:03.013  1234  1300 E OpModeManager: {  412 03.013} 	at org.firstinspires.ftc.teamcode.Robot.lambda$startLauncher$2(Robot.java:47)
+11-15 18:03:00.000  1234  1260 I RobotCore: Attempting to switch to OpMode Auto Red
+11-15 18:03:00.400  1234  1300 E OpModeManager: User code threw an uncaught exception
+11-15 18:03:00.401  1234  1300 E OpModeManager: java.lang.RuntimeException: init failed
+11-15 18:03:00.402  1234  1300 E OpModeManager: 	at org.firstinspires.ftc.teamcode.Robot.<init>(Robot.java:25)
+11-15 18:03:00.403  1234  1300 E OpModeManager: Caused by: java.lang.IllegalArgumentException: Unable to find a hardware device with name "flywheel" and type DcMotorEx
+11-15 18:03:00.404  1234  1300 E OpModeManager: 	at com.qualcomm.robotcore.hardware.HardwareMap.get(HardwareMap.java:213)
+11-15 18:03:00.405  1234  1300 E OpModeManager: 	at org.firstinspires.ftc.teamcode.subsystems.Launcher.<init>(Launcher.java:18)
+11-15 18:03:00.406  1234  1300 E OpModeManager: 	... 12 more
+11-15 18:04:00.000  1234  1260 I RobotCore: Attempting to switch to OpMode Vision Test
+11-15 18:04:06.000  1234  1270 E RobotCore: OpMode 'Vision Test' stuck in init(). Restarting robot controller app.
+11-15 18:04:06.010  1234  1270 E RobotCore: Begin thread dump
+11-15 18:04:09.100  2222  2222 I RobotCore: App info: version=12.0.0 appId=com.qualcomm.ftcrobotcontroller
+11-15 18:10:00.000  2222  2260 I RobotCore: Attempting to switch to OpMode One Controller TeleOp
+11-15 18:10:20.000  2222  2280 W HubPowerCycle: Control Hub regained power after a complete power loss. A user OpMode was running, so unexpected behavior may occur.
+11-15 18:10:21.000  2222  2280 W RobotCore: Control Hub currently has a battery too low to run motors and servos.
+11-15 18:10:22.000  2222  2281 W RobotCore: Expansion Hub 2 is currently unresponsive.
+11-15 18:10:22.500  2222  2281 V LynxModule: Marking module #2 as unresponsive until we receive some data back
+11-15 18:10:24.000  2222  2281 V LynxModule: REV Hub #2 has reconnected
+11-15 18:10:30.000  2222  2260 I EventLoopManager: Lost connection while running OpMode: One Controller TeleOp
+11-15 18:11:00.000  2222  2300 I LoopStats: opmode=Slow_Auto n=20 avg_ms=48.0 max_ms=260.5 batt_v=9.42
+11-15 18:11:01.000  2222  2300 I LoopStats: opmode=Slow_Auto n=21 avg_ms=45.0 max_ms=120.0 batt_v=10.80
+11-15 18:11:02.000  2222  2222 W art     : Suspending all threads took: 181.250ms
+11-15 18:11:03.000  2222  2301 E SomeLibrary: failed to open camera 3 on attempt 1
+11-15 18:11:04.000  2222  2301 E SomeLibrary: failed to open camera 3 on attempt 2
+11-15 18:11:05.000  2222  2222 D RobotCore: User runOpModeMethod exited
