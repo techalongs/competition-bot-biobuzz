@@ -51,6 +51,14 @@ public class OneController extends OpMode {
                         () -> (robot.isIntakeActive())
                 ));
 
+        // Feeder Toggle
+        driver1.getGamepadButton(GamepadKeys.Button.CROSS)
+                .whenPressed(new ConditionalCommand(
+                        robot.stopFeeder(),
+                        robot.startFeeder(),
+                        () -> (robot.isFeederActive())
+                ));
+
         // Launcher Start/Stop Button
         driver1.getGamepadButton(GamepadKeys.Button.TRIANGLE)
                 .whenPressed(new ConditionalCommand(

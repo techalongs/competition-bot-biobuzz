@@ -10,6 +10,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.NewIMU;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.Feeder;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
@@ -19,6 +20,7 @@ import java.util.List;
 public class Robot {
     private final Drivetrain drivetrain;
     private final Intake intake;
+    private final Feeder feeder;
     private final Launcher launcher;
     private final Telemetry telemetry;
     private final NewIMU imu;
@@ -27,6 +29,7 @@ public class Robot {
         imu = new NewIMU(hardwareMap, "imu");
         drivetrain = new Drivetrain(hardwareMap, "frontLeft", "frontRight", "backLeft", "backRight", imu);
         intake = new Intake(hardwareMap, "rightIntake", "leftIntake");
+        feeder = new Feeder(hardwareMap, "leftFeeder", "rightFeeder");
 
         launcher = new Launcher(hardwareMap, "flywheel", "turret", "switcher", "webcam");
         launcher.setDefaultCommand(autoaim());
@@ -46,6 +49,14 @@ public class Robot {
 
     public Command stopIntake() {
         return new InstantCommand(intake::stop);
+    }
+
+    public Command startFeeder() {
+        return new InstantCommand(feeder::start);
+    }
+
+    public Command stopFeeder() {
+        return new InstantCommand(feeder::stop);
     }
 
     public Command startLauncher() {
@@ -74,6 +85,10 @@ public class Robot {
 
     public boolean isIntakeActive() {
         return intake.getPower() != 0;
+    }
+
+    public boolean isFeederActive() {
+        return feeder.getPower() != 0;
     }
 
     public boolean isLauncherActive() {
