@@ -28,7 +28,7 @@ public class OneController extends OpMode {
         limiter = 0.5;
 
         // Initialize turret
-        robot.resetTurret();
+        CommandScheduler.getInstance().schedule(robot.resetTurret());
 
         // Drive State Button
         driver1.getGamepadButton(GamepadKeys.Button.TOUCHPAD)
