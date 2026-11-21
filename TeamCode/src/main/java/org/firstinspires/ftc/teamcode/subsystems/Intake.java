@@ -21,7 +21,7 @@ public class Intake {
     public void stop() {
         this.intake.set(0);
     }
-
+    public void eject() { this.intake.set(-1);}
     public double getPower() {
         return this.intake.getRawPower();
     }

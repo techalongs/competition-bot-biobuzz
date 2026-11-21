@@ -11,10 +11,12 @@ import org.firstinspires.ftc.teamcode.hardware.NewIMU;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
+import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 
 public class Robot {
     private final Drivetrain drivetrain;
     private final Intake intake;
+    private final Transfer transfer;
     private final Launcher launcher;
     private final Telemetry telemetry;
     private final NewIMU imu;
@@ -23,6 +25,7 @@ public class Robot {
         imu = new NewIMU(hardwareMap, "imu");
         drivetrain = new Drivetrain(hardwareMap, "frontLeft", "frontRight", "backLeft", "backRight", imu);
         intake = new Intake(hardwareMap, "intake");
+        transfer = new Transfer(hardwareMap, "transfer");
 
         launcher = new Launcher(hardwareMap, "flywheel", "camera"); // TODO: Change camera id
 
@@ -42,6 +45,14 @@ public class Robot {
     public Command stopIntake() {
         return new InstantCommand(intake::stop);
     }
+
+    public Command startIntakeEject() { return new InstantCommand(intake::eject); }
+
+    public Command startTransfer() { return new InstantCommand(transfer::start); }
+
+    public Command stopTransfer() { return new InstantCommand(transfer::stop); }
+
+    public Command startTransferEject() { return new InstantCommand(transfer::eject); }
 
     public Command startLauncher() {
         return new InstantCommand(launcher::startLauncher);
@@ -68,6 +79,8 @@ public class Robot {
     public boolean isIntakeActive() {
         return intake.getPower() != 0;
     }
+
+    public boolean isTransferActive() { return transfer.getPower() != 0; }
 
     public boolean isLauncherActive() {
         return launcher.getPower() != 0;
