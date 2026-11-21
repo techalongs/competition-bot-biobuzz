@@ -102,6 +102,7 @@ public class Robot {
     public Telemetry getTelemetry() {
         telemetry.addData("Launcher Power", launcher.getPower());
         telemetry.addData("Switcher Position", launcher.getSwitcherPosition());
+        telemetry.addData("Feeder Power", feeder.getPower());
         telemetry.addData("Turret Angle", launcher.getAngle());
         telemetry.addData("Detection Angle", launcher.getClusterAngle());
         telemetry.addData("Intake Power", intake.getPower());
