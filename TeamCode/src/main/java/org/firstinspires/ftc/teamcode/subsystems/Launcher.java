@@ -1,50 +1,99 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import android.util.Range;
+import static org.firstinspires.ftc.teamcode.opmodes.TransferData.ALLIANCE;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
+import com.seattlesolvers.solverslib.hardware.servos.ServoEx;
 
 import org.firstinspires.ftc.teamcode.hardware.LogitechCamera;
+import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 
-public class Launcher {
-    private final static Range<Double> POWER_RANGE = Range.create(-1.0, 1.0);
+import java.util.Comparator;
+
+public class Launcher extends SubsystemBase {
+    private final double SHOOT_POWER = 0.5; // ~0.18 = flower, ~0.5 = hive
     private final MotorEx flywheel;
+    private final ServoEx turret;
+    private final ServoEx switcher;
     private final LogitechCamera camera;
-    private double power;
 
-    public Launcher(HardwareMap hardwareMap, String flywheel, String camera) {
+    public enum SwitcherPosition {
+        POLLEN(0),
+        NECTAR(0.8);
+
+        final double pos;
+
+        SwitcherPosition(double pos) {
+            this.pos = pos;
+        }
+    }
+
+    public Launcher(HardwareMap hardwareMap, String flywheel, String turret, String switcher, String camera) {
         this.flywheel = new MotorEx(hardwareMap, flywheel); // TODO: add customCPR (28?) and customRPM (6000?)
         this.flywheel.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-        this.flywheel.setInverted(true);
+        this.flywheel.setInverted(false);
         this.flywheel.setRunMode(Motor.RunMode.RawPower);
 
-        this.camera = new LogitechCamera(hardwareMap, camera);
+        // -45 to 30 degrees (possible total 80-86)
+        this.turret = new ServoEx(hardwareMap, turret, 0, 86); // TODO: Test and ensure range
+        this.turret.setInverted(false);
 
-        power = 0.1;
+        this.switcher = new ServoEx(hardwareMap, switcher, 0.8);
+        this.switcher.setInverted(false);
+        // pollen = 0, nectar = 1
+
+        this.camera = new LogitechCamera(hardwareMap, camera);
     }
 
     public void startLauncher() {
-        this.flywheel.set(power);
+        this.flywheel.set(SHOOT_POWER);
     }
 
     public void stopLauncher() {
-        this.power = 0;
-        this.flywheel.set(power);
+        this.flywheel.set(0);
     }
 
-    public void increaseSpeed() {
-        this.power += 0.1;
-        this.power = POWER_RANGE.clamp(this.power);
+    public void setPosition(SwitcherPosition position) {
+        this.switcher.set(position.pos);
     }
 
-    public void decreaseSpeed() {
-        this.power -= 0.1;
-        this.power = POWER_RANGE.clamp(this.power);
+    public AprilTagClusterDetection getCluster() {
+        // Get closest cluster that pertains to our alliance
+        return camera.getDetections().stream()
+                .map(d -> (AprilTagClusterDetection) d)
+                .filter(c -> !c.metadata.name.contains(ALLIANCE)) // In alliance
+                .min(Comparator.comparingDouble(c -> c.ftcPose.y)) // Closest
+                .orElse(null);
+    }
+
+    public void resetTurret() {
+        turret.set(38);
+    }
+
+    public void aim(AprilTagClusterDetection cluster) {
+        // Minimize bearing
+        double bearing = cluster.ftcPose.bearing; // Positive - left, Negative - right
+        turret.set(turret.get() - bearing);
     }
 
     public double getPower() {
         return flywheel.getRawPower();
+    }
+
+    public double getAngle() {
+        return turret.get();
+    }
+
+    public double getClusterAngle() {
+        AprilTagClusterDetection cluster = getCluster();
+        return (cluster != null) ? cluster.ftcPose.bearing : Double.NaN;
+    }
+
+    public SwitcherPosition getSwitcherPosition() {
+        return (switcher.getRawPosition() == SwitcherPosition.POLLEN.pos) ?
+                SwitcherPosition.POLLEN : SwitcherPosition.NECTAR;
     }
 }

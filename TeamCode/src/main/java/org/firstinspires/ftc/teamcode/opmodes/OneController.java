@@ -10,6 +10,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Launcher;
 
 @TeleOp(name = "One Controller TeleOp")
 public class OneController extends OpMode {
@@ -26,6 +27,9 @@ public class OneController extends OpMode {
         driveState = Drivetrain.DriveState.ROBOT_CENTRIC;
         limiter = 0.5;
 
+        // Initialize turret
+        CommandScheduler.getInstance().schedule(robot.resetTurret());
+
         // Drive State Button
         driver1.getGamepadButton(GamepadKeys.Button.TOUCHPAD)
                 .whenPressed(new ConditionalCommand(
@@ -35,7 +39,7 @@ public class OneController extends OpMode {
                 ));
 
         // Fast Button
-        driver1.getGamepadButton(GamepadKeys.Button.CIRCLE)
+        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenHeld(new InstantCommand(() -> limiter = 0.8))
                 .whenReleased(new InstantCommand(() -> limiter = 0.5));
 
@@ -47,6 +51,14 @@ public class OneController extends OpMode {
                         () -> (robot.isIntakeActive())
                 ));
 
+        // Feeder Toggle
+        driver1.getGamepadButton(GamepadKeys.Button.CROSS)
+                .whenPressed(new ConditionalCommand(
+                        robot.stopFeeder(),
+                        robot.startFeeder(),
+                        () -> (robot.isFeederActive())
+                ));
+
         // Launcher Start/Stop Button
         driver1.getGamepadButton(GamepadKeys.Button.TRIANGLE)
                 .whenPressed(new ConditionalCommand(
@@ -55,12 +67,17 @@ public class OneController extends OpMode {
                         () -> (robot.isLauncherActive())
                 ));
 
-        // Launcher Speed Buttons
-        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(robot.increaseLauncherSpeed());
+        // Switcher Position Toggle
+        driver1.getGamepadButton(GamepadKeys.Button.CIRCLE)
+                .whenPressed(new ConditionalCommand(
+                        robot.setSwitcher(Launcher.SwitcherPosition.POLLEN),
+                        robot.setSwitcher(Launcher.SwitcherPosition.NECTAR),
+                        () -> (robot.getSwitcherPosition() == Launcher.SwitcherPosition.NECTAR)
+                ));
 
-        driver1.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(robot.decreaseLauncherSpeed());
+//        // Autoaim
+//        driver1.getGamepadButton(GamepadKeys.Button.CROSS)
+//                .whenPressed(robot.autoaim());
 
         // Telemetry
         telemetry.addData("Status", "Initialized");
