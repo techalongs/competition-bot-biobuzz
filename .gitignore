@@ -79,3 +79,9 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+## FTC Binary Docs
+**/competition-manual*.pdf
+
+# Python bytecode from the skill scripts and their tests
+__pycache__/

@@ -16,11 +16,13 @@ import org.firstinspires.ftc.teamcode.subsystems.Launcher;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 
 import java.util.List;
+import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 
 public class Robot {
     private final Drivetrain drivetrain;
     private final Intake intake;
     private final Feeder feeder;
+    private final Transfer transfer;
     private final Launcher launcher;
     private final Telemetry telemetry;
     private final NewIMU imu;
@@ -30,6 +32,7 @@ public class Robot {
         drivetrain = new Drivetrain(hardwareMap, "frontLeft", "frontRight", "backLeft", "backRight", imu);
         intake = new Intake(hardwareMap, "rightIntake", "leftIntake");
         feeder = new Feeder(hardwareMap, "leftFeeder", "rightFeeder");
+        transfer = new Transfer(hardwareMap, "transfer");
 
         launcher = new Launcher(hardwareMap, "flywheel", "turret", "switcher", "webcam");
         launcher.setDefaultCommand(autoaim());
@@ -58,6 +61,13 @@ public class Robot {
     public Command stopFeeder() {
         return new InstantCommand(feeder::stop);
     }
+    public Command startIntakeEject() { return new InstantCommand(intake::eject); }
+
+    public Command startTransfer() { return new InstantCommand(transfer::start); }
+
+    public Command stopTransfer() { return new InstantCommand(transfer::stop); }
+
+    public Command startTransferEject() { return new InstantCommand(transfer::eject); }
 
     public Command startLauncher() {
         return new InstantCommand(launcher::startLauncher);
@@ -90,6 +100,7 @@ public class Robot {
     public boolean isFeederActive() {
         return feeder.getPower() != 0;
     }
+    public boolean isTransferActive() { return transfer.getPower() != 0; }
 
     public boolean isLauncherActive() {
         return launcher.getPower() != 0;

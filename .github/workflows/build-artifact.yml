@@ -1,0 +1,214 @@
+# Builds the Robot Controller APK on every push to any branch and uploads it
+# to a public S3 location.
+#
+# S3 layout (per repo and branch):
+#   <repo>/builds/<branch>/<repo>.<YYYYMMDD>-b<run>-<sha8>.<branch>.apk   unique, never overwritten
+#   <repo>/builds/<branch>/latest.apk                                     newest build on that branch
+#   <repo>/builds/<branch>/latest.json                                    metadata for latest.apk
+#
+# Example:
+#   competition-bot-biobuzz/builds/master/competition-bot-biobuzz.20261118-b58-1bccde45.master.apk
+#
+# Public URL:
+#   https://<bucket>.s3.<region>.amazonaws.com/<key>
+#
+# Required configuration (repo or org level, Settings > Secrets and variables > Actions):
+#   Secrets:    AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+#   Variables:  S3_BUCKET, AWS_REGION
+#               BUILD_TZ (optional, time zone for the date in the file name;
+#                         defaults to America/Phoenix)
+#
+# Versioned builds from non-default branches are tagged branch-type=feature so a
+# bucket lifecycle rule can expire them. Default-branch builds and latest.* are kept.
+
+name: Build Robot APK
+
+on:
+  push:
+    branches: ['**']   # every branch; tag pushes are excluded
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      S3_BUCKET: ${{ vars.S3_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      BUILD_TZ: ${{ vars.BUILD_TZ || 'America/Phoenix' }}
+      REPO_NAME: ${{ github.event.repository.name }}
+
+    steps:
+      - name: Check configuration
+        env:
+          HAS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID != '' }}
+          HAS_SECRET: ${{ secrets.AWS_SECRET_ACCESS_KEY != '' }}
+        run: |
+          missing=()
+          [ -n "$S3_BUCKET" ]         || missing+=("variable S3_BUCKET")
+          [ -n "$AWS_REGION" ]        || missing+=("variable AWS_REGION")
+          [ "$HAS_KEY_ID" = "true" ]  || missing+=("secret AWS_ACCESS_KEY_ID")
+          [ "$HAS_SECRET" = "true" ]  || missing+=("secret AWS_SECRET_ACCESS_KEY")
+          if [ ${#missing[@]} -gt 0 ]; then
+            for m in "${missing[@]}"; do echo "::error::Missing repository $m"; done
+            exit 1
+          fi
+
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic   # open-source cache provider, free for private repos
+
+      - name: Install Android platform
+        run: |
+          api=$(grep -oP 'compileSdkVersion\s+\K\d+' build.common.gradle)
+          if [ -z "$api" ]; then
+            echo "::error::Could not read compileSdkVersion from build.common.gradle"
+            exit 1
+          fi
+          sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$sdkmanager" --licenses > /dev/null || true
+          "$sdkmanager" "platforms;android-$api" > /dev/null
+          echo "Installed platforms;android-$api"
+
+      - name: Compute version
+        id: version
+        run: |
+          sdk_version=$(grep -oP 'android:versionName="\K[^"]+' FtcRobotController/src/main/AndroidManifest.xml)
+          # Branch names can contain '/' and other characters that don't belong in file names or URLs.
+          # A leading "feature-" is dropped (feature/add-x and feature-add-x both become add-x).
+          safe_branch=$(printf '%s' "$GITHUB_REF_NAME" | tr -c 'A-Za-z0-9._-' '-')
+          safe_branch=${safe_branch#feature-}
+          safe_branch=${safe_branch:0:40}
+          short_sha=${GITHUB_SHA::8}
+          build_date=$(TZ="$BUILD_TZ" date +%Y%m%d)
+          version="${build_date}-b${GITHUB_RUN_NUMBER}-${short_sha}"
+          apk_name="${REPO_NAME}.${version}.${safe_branch}.apk"
+
+          if [ "$GITHUB_REF_NAME" = "${{ github.event.repository.default_branch }}" ]; then
+            is_default=true
+          else
+            is_default=false
+          fi
+
+          {
+            echo "version=$version"
+            echo "sdk_version=$sdk_version"
+            echo "safe_branch=$safe_branch"
+            echo "apk_name=$apk_name"
+            echo "is_default=$is_default"
+          } >> "$GITHUB_OUTPUT"
+          echo "File: $apk_name"
+
+      - name: Build
+        run: ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: |
+          mkdir -p dist
+          cp TeamCode/build/outputs/apk/debug/TeamCode-debug.apk "dist/${{ steps.version.outputs.apk_name }}"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Upload to S3
+        id: s3
+        env:
+          APK_NAME: ${{ steps.version.outputs.apk_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+          SDK_VERSION: ${{ steps.version.outputs.sdk_version }}
+          SAFE_BRANCH: ${{ steps.version.outputs.safe_branch }}
+          IS_DEFAULT: ${{ steps.version.outputs.is_default }}
+        run: |
+          set -euo pipefail
+          apk="dist/$APK_NAME"
+          base="${REPO_NAME}/builds/${SAFE_BRANCH}"
+          key="${base}/${APK_NAME}"
+          url_root="https://${S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com"
+          apk_type="application/vnd.android.package-archive"
+
+          # Versioned build: immutable. Non-default branches get a tag for lifecycle expiry.
+          tagging=()
+          if [ "$IS_DEFAULT" != "true" ]; then
+            tagging=(--tagging "branch-type=feature")
+          fi
+          aws s3api put-object \
+            --bucket "$S3_BUCKET" --key "$key" --body "$apk" \
+            --content-type "$apk_type" \
+            --cache-control "public, max-age=31536000, immutable" \
+            "${tagging[@]}" > /dev/null
+
+          echo "apk_url=${url_root}/${key}" >> "$GITHUB_OUTPUT"
+          echo "latest_url=${url_root}/${base}/latest.apk" >> "$GITHUB_OUTPUT"
+          echo "Uploaded ${url_root}/${key}"
+
+          # Branch pointer. Two pushes close together can finish out of order, so
+          # only move latest.* forward: skip if a newer run already published.
+          published_run=$( (aws s3 cp "s3://${S3_BUCKET}/${base}/latest.json" - 2>/dev/null || true) | jq -r '.run // 0' 2>/dev/null || true)
+          published_run=${published_run:-0}
+          if [ "$GITHUB_RUN_NUMBER" -lt "$published_run" ]; then
+            echo "latest.apk already points at newer run $published_run; leaving it alone"
+            exit 0
+          fi
+
+          aws s3 cp "$apk" "s3://${S3_BUCKET}/${base}/latest.apk" \
+            --content-type "$apk_type" --cache-control "no-cache" --only-show-errors
+
+          jq -n \
+            --arg repo "$REPO_NAME" \
+            --arg version "$VERSION" \
+            --arg sdk_version "$SDK_VERSION" \
+            --arg branch "$GITHUB_REF_NAME" \
+            --arg commit "$GITHUB_SHA" \
+            --argjson run "$GITHUB_RUN_NUMBER" \
+            --arg file "$APK_NAME" \
+            --arg url "${url_root}/${key}" \
+            --arg built_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{repo: $repo, version: $version, sdk_version: $sdk_version, branch: $branch, commit: $commit,
+              run: $run, file: $file, url: $url, built_at: $built_at}' > dist/latest.json
+          aws s3 cp dist/latest.json "s3://${S3_BUCKET}/${base}/latest.json" \
+            --content-type "application/json" --cache-control "no-cache" --only-show-errors
+          echo "Updated ${url_root}/${base}/latest.apk"
+
+      - name: Job summary
+        env:
+          APK_NAME: ${{ steps.version.outputs.apk_name }}
+          SDK_VERSION: ${{ steps.version.outputs.sdk_version }}
+          APK_URL: ${{ steps.s3.outputs.apk_url }}
+          LATEST_URL: ${{ steps.s3.outputs.latest_url }}
+        run: |
+          size=$(du -h "dist/$APK_NAME" | cut -f1)
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ### Robot Controller APK
+
+          | | |
+          |---|---|
+          | File | [\`${APK_NAME}\`](${APK_URL}) |
+          | Latest on branch | [\`latest.apk\`](${LATEST_URL}) |
+          | FTC SDK | ${SDK_VERSION} |
+          | Branch | \`${GITHUB_REF_NAME}\` |
+          | Commit | \`${GITHUB_SHA::7}\` |
+          | Size | ${size} |
+
+          Install this build:
+          \`\`\`bash
+          curl -fLO ${APK_URL} && adb install -r ${APK_NAME}
+          \`\`\`
+          EOF
