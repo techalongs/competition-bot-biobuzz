@@ -125,6 +125,8 @@ public class Robot {
         telemetry.addData("Turret Angle", launcher.getAngle());
         telemetry.addData("Detection Angle", launcher.getClusterAngle());
         telemetry.addData("Intake Power", intake.getPower());
+        telemetry.addData("Transfer Power", transfer.getPower());
+        telemetry.addData("Feeder Power", feeder.getPower());
         return telemetry;
     }
 }
