@@ -75,6 +75,14 @@ public class OneController extends OpMode {
                         () -> (robot.getSwitcherPosition() == Launcher.SwitcherPosition.NECTAR)
                 ));
 
+        // Transfer Toggle
+        driver1.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenPressed(new ConditionalCommand(
+                        robot.stopTransfer(),
+                        robot.startTransfer(),
+                        () -> (robot.isTransferActive())
+                ));
+
 //        // Autoaim
 //        driver1.getGamepadButton(GamepadKeys.Button.CROSS)
 //                .whenPressed(robot.autoaim());

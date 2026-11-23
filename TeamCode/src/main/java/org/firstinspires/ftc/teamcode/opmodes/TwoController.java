@@ -67,13 +67,6 @@ public class TwoController extends OpMode {
                         () -> (robot.isLauncherActive())
                 ));
 
-        // Launcher Speed Buttons
-        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(robot.increaseLauncherSpeed());
-
-        driver1.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(robot.decreaseLauncherSpeed());
-
         // Telemetry
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Drive Mode", driveState);

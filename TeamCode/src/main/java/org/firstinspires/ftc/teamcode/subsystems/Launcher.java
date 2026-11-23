@@ -14,7 +14,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import java.util.Comparator;
 
 public class Launcher extends SubsystemBase {
-    private final double SHOOT_POWER = 0.5; // ~0.18 = flower, ~0.5 = hive
+    private final double SHOOT_POWER = 1; // ~0.18 = flower, ~0.5 = hive
     private final MotorEx flywheel;
     private final ServoEx turret;
     private final ServoEx switcher;

@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.hardware.motors.CRServo;
 import com.seattlesolvers.solverslib.hardware.motors.CRServoGroup;
-import com.seattlesolvers.solverslib.hardware.motors.Motor;
 
 public class Feeder extends SubsystemBase {
     private CRServoGroup feeders;

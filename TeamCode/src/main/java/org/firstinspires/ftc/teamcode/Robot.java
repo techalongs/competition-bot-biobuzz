@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.DeferredCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
-import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -32,7 +31,7 @@ public class Robot {
         drivetrain = new Drivetrain(hardwareMap, "frontLeft", "frontRight", "backLeft", "backRight", imu);
         intake = new Intake(hardwareMap, "rightIntake", "leftIntake");
         feeder = new Feeder(hardwareMap, "leftFeeder", "rightFeeder");
-        transfer = new Transfer(hardwareMap, "transfer");
+        transfer = new Transfer(hardwareMap, "auger", "elevator");
 
         launcher = new Launcher(hardwareMap, "flywheel", "turret", "switcher", "webcam");
         launcher.setDefaultCommand(autoaim());
@@ -61,13 +60,21 @@ public class Robot {
     public Command stopFeeder() {
         return new InstantCommand(feeder::stop);
     }
-    public Command startIntakeEject() { return new InstantCommand(intake::eject); }
+    public Command startIntakeEject() {
+        return new InstantCommand(intake::eject);
+    }
 
-    public Command startTransfer() { return new InstantCommand(transfer::start); }
+    public Command startTransfer() {
+        return new InstantCommand(transfer::start);
+    }
 
-    public Command stopTransfer() { return new InstantCommand(transfer::stop); }
+    public Command stopTransfer() {
+        return new InstantCommand(transfer::stop);
+    }
 
-    public Command startTransferEject() { return new InstantCommand(transfer::eject); }
+    public Command startTransferEject() {
+        return new InstantCommand(transfer::eject);
+    }
 
     public Command startLauncher() {
         return new InstantCommand(launcher::startLauncher);
@@ -100,7 +107,9 @@ public class Robot {
     public boolean isFeederActive() {
         return feeder.getPower() != 0;
     }
-    public boolean isTransferActive() { return transfer.getPower() != 0; }
+    public boolean isTransferActive() {
+        return transfer.getPower() != 0;
+    }
 
     public boolean isLauncherActive() {
         return launcher.getPower() != 0;
@@ -113,6 +122,7 @@ public class Robot {
     public Telemetry getTelemetry() {
         telemetry.addData("Launcher Power", launcher.getPower());
         telemetry.addData("Switcher Position", launcher.getSwitcherPosition());
+        telemetry.addData("Transfer Power", transfer.getPower());
         telemetry.addData("Feeder Power", feeder.getPower());
         telemetry.addData("Turret Angle", launcher.getAngle());
         telemetry.addData("Detection Angle", launcher.getClusterAngle());
