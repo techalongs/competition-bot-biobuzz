@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
@@ -12,6 +10,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
 @TeleOp(name = "Two Controller TeleOp")
 public class TwoController extends OpMode {
@@ -48,14 +47,15 @@ public class TwoController extends OpMode {
                 .whenPressed(new ConditionalCommand(
                         robot.stopIntake(),
                         robot.startIntake(),
-                        () -> (robot.isIntakeActive())
+                        () -> (robot.getIntakeState() == Intake.IntakeState.INTAKE)
                 ));
-        // Eject Start/Stop Button// fix this.
+
+        // Eject Start/Stop Button
         driver2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
                 .whenPressed(new ConditionalCommand(
                         robot.stopIntake(),
-                        robot.startIntakeEject(),
-                        () -> (robot.isIntakeActive())
+                        robot.ejectIntake(),
+                        () -> (robot.getIntakeState() == Intake.IntakeState.EJECT)
                 ));
 
 

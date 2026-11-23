@@ -36,7 +36,7 @@ public class Robot {
         transfer = new Transfer(hardwareMap, "auger", "elevator");
 
         launcher = new Launcher(hardwareMap, "flywheel", "turret", "switcher", "webcam");
-        launcher.setDefaultCommand(autoaim());
+        // launcher.setDefaultCommand(autoaim()); TODO: Fix
 
         lifter = new Lifter(hardwareMap, "lifter", "starter", "gate");
 
@@ -57,15 +57,16 @@ public class Robot {
         return new InstantCommand(intake::stop);
     }
 
+    public Command ejectIntake() {
+        return new InstantCommand(intake::eject);
+    }
+
     public Command startFeeder() {
         return new InstantCommand(feeder::start);
     }
 
     public Command stopFeeder() {
         return new InstantCommand(feeder::stop);
-    }
-    public Command startIntakeEject() {
-        return new InstantCommand(intake::eject);
     }
 
     public Command startTransfer() {
@@ -112,8 +113,8 @@ public class Robot {
         return new InstantCommand(lifter::closeGate);
     }
 
-    public boolean isIntakeActive() {
-        return intake.getPower() != 0;
+    public Intake.IntakeState getIntakeState() {
+        return intake.getIntakeState();
     }
 
     public boolean isFeederActive() {
@@ -140,7 +141,7 @@ public class Robot {
         telemetry.addData("Switcher Position", launcher.getSwitcherPosition());
         telemetry.addData("Turret Angle", launcher.getAngle());
         telemetry.addData("Detection Angle", launcher.getClusterAngle());
-        telemetry.addData("Intake Power", intake.getPower());
+        telemetry.addData("Intake State", intake.getIntakeState());
         telemetry.addData("Transfer Power", transfer.getPower());
         telemetry.addData("Feeder Power", feeder.getPower());
         telemetry.addData("Gate Position", lifter.getGatePosition());
