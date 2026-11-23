@@ -11,6 +11,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 
 @TeleOp(name = "Two Controller TeleOp")
 public class TwoController extends OpMode {
@@ -47,15 +48,31 @@ public class TwoController extends OpMode {
                 .whenPressed(new ConditionalCommand(
                         robot.stopIntake(),
                         robot.startIntake(),
-                        () -> (robot.getIntakeState() == Intake.IntakeState.INTAKE)
+                        () -> (robot.getIntakeState() == Intake.IntakeState.ON)
                 ));
 
-        // Eject Start/Stop Button
+        // Intake Eject Start/Stop Button
         driver2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
                 .whenPressed(new ConditionalCommand(
                         robot.stopIntake(),
                         robot.ejectIntake(),
-                        () -> (robot.getIntakeState() == Intake.IntakeState.EJECT)
+                        () -> (robot.getIntakeState() == Intake.IntakeState.REVERSE)
+                ));
+
+        // Transfer Start/Stop Button
+        driver2.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
+                .whenPressed(new ConditionalCommand(
+                        robot.stopTransfer(),
+                        robot.startTransfer(),
+                        () -> (robot.getTransferState() == Transfer.TransferState.ON)
+                ));
+
+        // Transfer Eject Start/Stop Button
+        driver2.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
+                .whenPressed(new ConditionalCommand(
+                        robot.stopTransfer(),
+                        robot.ejectTransfer(),
+                        () -> (robot.getTransferState() == Transfer.TransferState.REVERSE)
                 ));
 
 

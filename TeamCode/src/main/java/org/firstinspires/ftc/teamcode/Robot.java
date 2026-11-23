@@ -77,7 +77,7 @@ public class Robot {
         return new InstantCommand(transfer::stop);
     }
 
-    public Command startTransferEject() {
+    public Command ejectTransfer() {
         return new InstantCommand(transfer::eject);
     }
 
@@ -120,8 +120,8 @@ public class Robot {
     public boolean isFeederActive() {
         return feeder.getPower() != 0;
     }
-    public boolean isTransferActive() {
-        return transfer.getPower() != 0;
+    public Transfer.TransferState getTransferState() {
+        return transfer.getTransferState();
     }
 
     public boolean isLauncherActive() {
@@ -143,7 +143,7 @@ public class Robot {
         telemetry.addData("Detection Angle", launcher.getClusterAngle());
         telemetry.addLine("--------------------");
         telemetry.addData("Intake State", intake.getIntakeState());
-        telemetry.addData("Transfer Power", transfer.getPower());
+        telemetry.addData("Transfer State", transfer.getTransferState());
         telemetry.addData("Feeder Power", feeder.getPower());
         telemetry.addLine("--------------------");
         telemetry.addData("Gate Position", lifter.getGatePosition());

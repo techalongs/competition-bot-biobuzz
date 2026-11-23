@@ -4,38 +4,48 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.hardware.motors.CRServo;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
+import com.seattlesolvers.solverslib.hardware.motors.MotorGroup;
 
 public class Transfer {
+    private final MotorGroup transfer;
 
-    public final MotorEx elevator;
-    private final CRServo auger;
+    public enum TransferState {
+        ON(1),
+        REVERSE(-1),
+        OFF(0);
+        final int power;
+        TransferState(int power) {
+            this.power = power;
+        }
+    }
 
-    public Transfer(HardwareMap hardwareMap, String auger, String elevator) {
-        this.auger = new CRServo(hardwareMap, auger);
-        this.auger.setInverted(false);
+    public Transfer(HardwareMap hardwareMap, String augerName, String elevatorName) {
+        CRServo auger = new CRServo(hardwareMap, augerName);
+        auger.setInverted(false);
 
-        this.elevator = new MotorEx(hardwareMap, elevator);
-        this.elevator.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        this.elevator.setInverted(true);
-        this.elevator.setRunMode(Motor.RunMode.RawPower);
+        MotorEx elevator = new MotorEx(hardwareMap, elevatorName);
+        elevator.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        elevator.setInverted(true);
+        elevator.setRunMode(Motor.RunMode.RawPower);
+
+        this.transfer = new MotorGroup(elevator, auger);
     }
 
     public void start() {
-        this.auger.set(1);
-        this.elevator.set(1);
+        this.transfer.set(TransferState.ON.power);
     }
 
     public void stop() {
-        this.auger.set(0);
-        this.elevator.set(0);
+        this.transfer.set(TransferState.OFF.power);
     }
 
     public void eject() {
-        this.auger.set(-1);
-        this.elevator.set(-1);
+        this.transfer.set(TransferState.REVERSE.power);
     }
 
-    public double getPower() {
-        return this.elevator.getRawPower();
+    public TransferState getTransferState() {
+        if (this.transfer.getRawPower() == TransferState.ON.power) return TransferState.ON;
+        else if (this.transfer.getRawPower() == TransferState.REVERSE.power) return TransferState.REVERSE;
+        return TransferState.OFF;
     }
 }

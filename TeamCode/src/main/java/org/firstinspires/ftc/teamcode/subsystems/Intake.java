@@ -10,10 +10,10 @@ public class Intake extends SubsystemBase {
     private final MotorGroup intake;
 
     public enum IntakeState {
-        INTAKE(1),
-        EJECT(-1),
-        STOP(0);
-        double power;
+        ON(1),
+        REVERSE(-1),
+        OFF(0);
+        final double power;
         IntakeState(double power) {
             this.power = power;
         }
@@ -35,16 +35,16 @@ public class Intake extends SubsystemBase {
     }
 
     public void start() {
-        this.intake.set(IntakeState.INTAKE.power);
+        this.intake.set(IntakeState.ON.power);
     }
 
     public void stop() {
-        this.intake.set(IntakeState.STOP.power);
+        this.intake.set(IntakeState.OFF.power);
     }
-    public void eject() { this.intake.set(IntakeState.EJECT.power);}
+    public void eject() { this.intake.set(IntakeState.REVERSE.power);}
     public IntakeState getIntakeState() {
-        if (this.intake.getRawPower() == IntakeState.INTAKE.power) return IntakeState.INTAKE;
-        else if (this.intake.getRawPower() == IntakeState.EJECT.power) return IntakeState.EJECT;
-        return IntakeState.STOP;
+        if (this.intake.getRawPower() == IntakeState.ON.power) return IntakeState.ON;
+        else if (this.intake.getRawPower() == IntakeState.REVERSE.power) return IntakeState.REVERSE;
+        return IntakeState.OFF;
     }
 }
