@@ -11,6 +11,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
+import org.firstinspires.ftc.teamcode.subsystems.Lifter;
 
 @TeleOp(name = "One Controller TeleOp")
 public class OneController extends OpMode {
@@ -81,6 +82,14 @@ public class OneController extends OpMode {
                         robot.stopTransfer(),
                         robot.startTransfer(),
                         () -> (robot.isTransferActive())
+                ));
+
+        // Gate Toggle
+        driver1.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
+                .whenPressed(new ConditionalCommand(
+                        robot.closeGate(),
+                        robot.openGate(),
+                        () -> (robot.getGatePosition() == Lifter.GatePosition.OPEN)
                 ));
 
 //        // Autoaim

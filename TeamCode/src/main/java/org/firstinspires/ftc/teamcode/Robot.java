@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
+import org.firstinspires.ftc.teamcode.subsystems.Lifter;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class Robot {
     private final Feeder feeder;
     private final Transfer transfer;
     private final Launcher launcher;
+    private final Lifter lifter;
     private final Telemetry telemetry;
     private final NewIMU imu;
 
@@ -35,6 +37,8 @@ public class Robot {
 
         launcher = new Launcher(hardwareMap, "flywheel", "turret", "switcher", "webcam");
         launcher.setDefaultCommand(autoaim());
+
+        lifter = new Lifter(hardwareMap, "lifter", "starter", "gate");
 
         this.telemetry = telemetry;
     }
@@ -100,6 +104,14 @@ public class Robot {
         return new InstantCommand(() -> launcher.setPosition(position));
     }
 
+    public Command openGate() {
+        return new InstantCommand(lifter::openGate);
+    }
+
+    public Command closeGate() {
+        return new InstantCommand(lifter::closeGate);
+    }
+
     public boolean isIntakeActive() {
         return intake.getPower() != 0;
     }
@@ -119,6 +131,10 @@ public class Robot {
         return launcher.getSwitcherPosition();
     }
 
+    public Lifter.GatePosition getGatePosition() {
+        return lifter.getGatePosition();
+    }
+
     public Telemetry getTelemetry() {
         telemetry.addData("Launcher Power", launcher.getPower());
         telemetry.addData("Switcher Position", launcher.getSwitcherPosition());
@@ -127,6 +143,7 @@ public class Robot {
         telemetry.addData("Intake Power", intake.getPower());
         telemetry.addData("Transfer Power", transfer.getPower());
         telemetry.addData("Feeder Power", feeder.getPower());
+        telemetry.addData("Gate Position", lifter.getGatePosition());
         return telemetry;
     }
 }
