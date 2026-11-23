@@ -141,9 +141,11 @@ public class Robot {
         telemetry.addData("Switcher Position", launcher.getSwitcherPosition());
         telemetry.addData("Turret Angle", launcher.getAngle());
         telemetry.addData("Detection Angle", launcher.getClusterAngle());
+        telemetry.addLine("--------------------");
         telemetry.addData("Intake State", intake.getIntakeState());
         telemetry.addData("Transfer Power", transfer.getPower());
         telemetry.addData("Feeder Power", feeder.getPower());
+        telemetry.addLine("--------------------");
         telemetry.addData("Gate Position", lifter.getGatePosition());
         return telemetry;
     }
