@@ -6,9 +6,9 @@ import com.seattlesolvers.solverslib.hardware.motors.CRServo;
 import com.seattlesolvers.solverslib.hardware.servos.ServoEx;
 
 public class Lifter extends SubsystemBase {
-    private CRServo lifter;
-    private ServoEx starter;
-    private ServoEx gate;
+    private final CRServo lifter;
+    private final ServoEx starter;
+    private final ServoEx gate;
 
     // TODO: Need to add limit switch on lifter, probably magnetic
     // TODO: Then, finish lifter code
@@ -17,7 +17,7 @@ public class Lifter extends SubsystemBase {
         OPEN(0.4),
         CLOSE(0);
 
-        double pos;
+        final double pos;
         GatePosition(double pos) {
             this.pos = pos;
         }
