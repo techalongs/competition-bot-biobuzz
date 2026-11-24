@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.button.Trigger;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
@@ -39,12 +40,12 @@ public class TwoController extends OpMode {
                 ));
 
         // Fast Button
-        driver1.getGamepadButton(GamepadKeys.Button.CIRCLE)
+        driver1.getGamepadButton(GamepadKeys.Button.CROSS)
                 .whenHeld(new InstantCommand(() -> limiter = 0.8))
                 .whenReleased(new InstantCommand(() -> limiter = 0.5));
 
         // Intake Start/Stop Button
-        driver2.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(new ConditionalCommand(
                         robot.stopIntake(),
                         robot.startIntake(),
@@ -52,7 +53,7 @@ public class TwoController extends OpMode {
                 ));
 
         // Intake Eject Start/Stop Button
-        driver2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+        driver1.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(new ConditionalCommand(
                         robot.stopIntake(),
                         robot.ejectIntake(),
@@ -77,7 +78,7 @@ public class TwoController extends OpMode {
 
 
         // Launcher Start/Stop Button
-        driver2.getGamepadButton(GamepadKeys.Button.TRIANGLE)
+        driver2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(new ConditionalCommand(
                         robot.stopLauncher(),
                         robot.startLauncher(),
