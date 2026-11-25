@@ -116,4 +116,10 @@ public class OneController extends OpMode {
         telemetry.addData("Drive Limiter", limiter);
         telemetry.update();
     }
+
+    @Override
+    public void stop() {
+        // Reset Command Scheduler
+        CommandScheduler.getInstance().reset();
+    }
 }

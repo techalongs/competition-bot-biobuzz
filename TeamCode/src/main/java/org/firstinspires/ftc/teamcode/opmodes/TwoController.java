@@ -140,4 +140,9 @@ public class TwoController extends OpMode {
         telemetry.update();
     }
 
+    @Override
+    public void stop() {
+        // Reset Command Scheduler
+        CommandScheduler.getInstance().reset();
+    }
 }
