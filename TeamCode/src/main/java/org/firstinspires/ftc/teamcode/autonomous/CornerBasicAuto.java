@@ -11,7 +11,7 @@ import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
-public class BasicAuto extends OpMode {
+public class CornerBasicAuto extends OpMode {
 
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
