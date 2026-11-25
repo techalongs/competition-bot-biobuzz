@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.button.GamepadButton;
 import com.seattlesolvers.solverslib.command.button.Trigger;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
@@ -32,6 +33,9 @@ public class TwoController extends OpMode {
 
         driveState = Drivetrain.DriveState.ROBOT_CENTRIC;
         limiter = 0.5;
+
+        // Initialize turret
+        CommandScheduler.getInstance().schedule(robot.resetTurret());
 
         // Drive State Button
         driver1.getGamepadButton(GamepadKeys.Button.TOUCHPAD)
@@ -76,6 +80,20 @@ public class TwoController extends OpMode {
                         robot.stopTransfer(),
                         robot.ejectTransfer(),
                         () -> (robot.getTransferState() == Transfer.TransferState.REVERSE)
+                ));
+
+        // Intake + Transfer Start Button
+        driver2.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+                .whenPressed(new SequentialCommandGroup(
+                        robot.startIntake(),
+                        robot.startTransfer()
+                ));
+
+        // Intake + Transfer Eject Button
+        driver2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+                .whenPressed(new SequentialCommandGroup(
+                        robot.ejectTransfer(),
+                        robot.ejectIntake()
                 ));
 
         // Feeder Start/Stop Button
