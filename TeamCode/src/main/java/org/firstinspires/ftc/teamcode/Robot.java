@@ -8,6 +8,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.NewIMU;
+import org.firstinspires.ftc.teamcode.opmodes.TransferData;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -147,6 +148,8 @@ public class Robot {
         telemetry.addData("Feeder Power", feeder.getPower());
         telemetry.addLine("--------------------");
         telemetry.addData("Gate Position", lifter.getGatePosition());
+        telemetry.addLine("--------------------");
+        telemetry.addData("Alliance", TransferData.ALLIANCE);
         return telemetry;
     }
 }

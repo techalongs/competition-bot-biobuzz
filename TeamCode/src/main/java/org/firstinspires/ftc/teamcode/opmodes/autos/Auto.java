@@ -9,6 +9,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.opmodes.TransferData;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Autonomous(name = "Auto")
@@ -60,6 +61,8 @@ public class Auto extends OpMode {
 
     @Override
     public void start() {
+        TransferData.ALLIANCE = autoType[1];
+
         follower.setPose(Poses.START_POSE.pose);
         follower.update();
     }
