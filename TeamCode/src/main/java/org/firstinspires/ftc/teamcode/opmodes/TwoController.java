@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.button.GamepadButton;
+import com.seattlesolvers.solverslib.command.button.Trigger;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
@@ -60,7 +62,7 @@ public class TwoController extends OpMode {
                 ));
 
         // Transfer Start/Stop Button
-        driver2.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
+        driver2.getGamepadButton(GamepadKeys.Button.SQUARE)
                 .whenPressed(new ConditionalCommand(
                         robot.stopTransfer(),
                         robot.startTransfer(),
@@ -68,13 +70,20 @@ public class TwoController extends OpMode {
                 ));
 
         // Transfer Eject Start/Stop Button
-        driver2.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
+        driver2.getGamepadButton(GamepadKeys.Button.CIRCLE)
                 .whenPressed(new ConditionalCommand(
                         robot.stopTransfer(),
                         robot.ejectTransfer(),
                         () -> (robot.getTransferState() == Transfer.TransferState.REVERSE)
                 ));
 
+        // Feeder Start/Stop Button
+        new Trigger(() -> driver2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5)
+                .whenActive(new ConditionalCommand(
+                        robot.stopFeeder(),
+                        robot.startFeeder(),
+                        () -> (robot.isFeederActive())
+                ));
 
         // Launcher Start/Stop Button
         driver2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
