@@ -6,7 +6,7 @@ import com.seattlesolvers.solverslib.hardware.motors.CRServo;
 import com.seattlesolvers.solverslib.hardware.motors.CRServoGroup;
 
 public class Feeder extends SubsystemBase {
-    private CRServoGroup feeders;
+    private final CRServoGroup feeders;
 
     public Feeder(HardwareMap hardwareMap, String leftFeeder, String rightFeeder) {
         CRServo lFeeder = new CRServo(hardwareMap, leftFeeder);

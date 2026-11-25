@@ -9,6 +9,16 @@ import com.seattlesolvers.solverslib.hardware.motors.MotorGroup;
 public class Intake extends SubsystemBase {
     private final MotorGroup intake;
 
+    public enum IntakeState {
+        ON(1),
+        REVERSE(-1),
+        OFF(0);
+        final double power;
+        IntakeState(double power) {
+            this.power = power;
+        }
+    }
+
     public Intake(HardwareMap hardwareMap, String rIntake, String lIntake) {
         MotorEx rightIntake = new MotorEx(hardwareMap, rIntake);
         MotorEx leftIntake = new MotorEx(hardwareMap, lIntake);
@@ -25,14 +35,16 @@ public class Intake extends SubsystemBase {
     }
 
     public void start() {
-        this.intake.set(1);
+        this.intake.set(IntakeState.ON.power);
     }
 
     public void stop() {
-        this.intake.set(0);
+        this.intake.set(IntakeState.OFF.power);
     }
-    public void eject() { this.intake.set(-1);}
-    public double getPower() {
-        return this.intake.getRawPower();
+    public void eject() { this.intake.set(IntakeState.REVERSE.power);}
+    public IntakeState getIntakeState() {
+        if (this.intake.getRawPower() == IntakeState.ON.power) return IntakeState.ON;
+        else if (this.intake.getRawPower() == IntakeState.REVERSE.power) return IntakeState.REVERSE;
+        return IntakeState.OFF;
     }
 }

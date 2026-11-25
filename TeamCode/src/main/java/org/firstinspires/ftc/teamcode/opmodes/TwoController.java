@@ -1,17 +1,20 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandScheduler;
 import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
+import com.seattlesolvers.solverslib.command.button.Trigger;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Lifter;
+import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 
 @TeleOp(name = "Two Controller TeleOp")
 public class TwoController extends OpMode {
@@ -30,6 +33,9 @@ public class TwoController extends OpMode {
         driveState = Drivetrain.DriveState.ROBOT_CENTRIC;
         limiter = 0.5;
 
+        // Initialize turret
+        CommandScheduler.getInstance().schedule(robot.resetTurret());
+
         // Drive State Button
         driver1.getGamepadButton(GamepadKeys.Button.TOUCHPAD)
                 .whenPressed(new ConditionalCommand(
@@ -39,32 +45,78 @@ public class TwoController extends OpMode {
                 ));
 
         // Fast Button
-        driver1.getGamepadButton(GamepadKeys.Button.CIRCLE)
+        driver1.getGamepadButton(GamepadKeys.Button.CROSS)
                 .whenHeld(new InstantCommand(() -> limiter = 0.8))
                 .whenReleased(new InstantCommand(() -> limiter = 0.5));
 
         // Intake Start/Stop Button
-        driver2.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+        driver1.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(new ConditionalCommand(
                         robot.stopIntake(),
                         robot.startIntake(),
-                        () -> (robot.isIntakeActive())
+                        () -> (robot.getIntakeState() == Intake.IntakeState.ON)
                 ));
-        // Eject Start/Stop Button// fix this.
-        driver2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+
+        // Intake Eject Start/Stop Button
+        driver1.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(new ConditionalCommand(
                         robot.stopIntake(),
-                        robot.startIntakeEject(),
-                        () -> (robot.isIntakeActive())
+                        robot.ejectIntake(),
+                        () -> (robot.getIntakeState() == Intake.IntakeState.REVERSE)
                 ));
 
+        // Transfer Start/Stop Button
+        driver2.getGamepadButton(GamepadKeys.Button.SQUARE)
+                .whenPressed(new ConditionalCommand(
+                        robot.stopTransfer(),
+                        robot.startTransfer(),
+                        () -> (robot.getTransferState() == Transfer.TransferState.ON)
+                ));
+
+        // Transfer Eject Start/Stop Button
+        driver2.getGamepadButton(GamepadKeys.Button.CIRCLE)
+                .whenPressed(new ConditionalCommand(
+                        robot.stopTransfer(),
+                        robot.ejectTransfer(),
+                        () -> (robot.getTransferState() == Transfer.TransferState.REVERSE)
+                ));
+
+        // Intake + Transfer Start Button
+        driver2.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+                .whenPressed(new SequentialCommandGroup(
+                        robot.startIntake(),
+                        robot.startTransfer()
+                ));
+
+        // Intake + Transfer Eject Button
+        driver2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+                .whenPressed(new SequentialCommandGroup(
+                        robot.ejectTransfer(),
+                        robot.ejectIntake()
+                ));
+
+        // Feeder Start/Stop Button
+        new Trigger(() -> driver2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5)
+                .whenActive(new ConditionalCommand(
+                        robot.stopFeeder(),
+                        robot.startFeeder(),
+                        () -> (robot.isFeederActive())
+                ));
 
         // Launcher Start/Stop Button
-        driver2.getGamepadButton(GamepadKeys.Button.TRIANGLE)
+        driver2.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(new ConditionalCommand(
                         robot.stopLauncher(),
                         robot.startLauncher(),
                         () -> (robot.isLauncherActive())
+                ));
+
+        // Gate Open/Close Button
+        driver2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenPressed(new ConditionalCommand(
+                        robot.closeGate(),
+                        robot.openGate(),
+                        () -> (robot.getGatePosition() == Lifter.GatePosition.OPEN)
                 ));
 
         // Telemetry
@@ -87,4 +139,9 @@ public class TwoController extends OpMode {
         telemetry.update();
     }
 
+    @Override
+    public void stop() {
+        // Reset Command Scheduler
+        CommandScheduler.getInstance().reset();
+    }
 }

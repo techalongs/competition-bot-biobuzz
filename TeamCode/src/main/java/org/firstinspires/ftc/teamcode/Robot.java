@@ -8,10 +8,12 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.NewIMU;
+import org.firstinspires.ftc.teamcode.opmodes.TransferData;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
+import org.firstinspires.ftc.teamcode.subsystems.Lifter;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 
 import java.util.List;
@@ -23,6 +25,7 @@ public class Robot {
     private final Feeder feeder;
     private final Transfer transfer;
     private final Launcher launcher;
+    private final Lifter lifter;
     private final Telemetry telemetry;
     private final NewIMU imu;
 
@@ -34,7 +37,9 @@ public class Robot {
         transfer = new Transfer(hardwareMap, "auger", "elevator");
 
         launcher = new Launcher(hardwareMap, "flywheel", "turret", "switcher", "webcam");
-        launcher.setDefaultCommand(autoaim());
+        // launcher.setDefaultCommand(autoaim()); TODO: Fix
+
+        lifter = new Lifter(hardwareMap, "lifter", "starter", "gate");
 
         this.telemetry = telemetry;
     }
@@ -53,15 +58,16 @@ public class Robot {
         return new InstantCommand(intake::stop);
     }
 
+    public Command ejectIntake() {
+        return new InstantCommand(intake::eject);
+    }
+
     public Command startFeeder() {
         return new InstantCommand(feeder::start);
     }
 
     public Command stopFeeder() {
         return new InstantCommand(feeder::stop);
-    }
-    public Command startIntakeEject() {
-        return new InstantCommand(intake::eject);
     }
 
     public Command startTransfer() {
@@ -72,7 +78,7 @@ public class Robot {
         return new InstantCommand(transfer::stop);
     }
 
-    public Command startTransferEject() {
+    public Command ejectTransfer() {
         return new InstantCommand(transfer::eject);
     }
 
@@ -100,15 +106,23 @@ public class Robot {
         return new InstantCommand(() -> launcher.setPosition(position));
     }
 
-    public boolean isIntakeActive() {
-        return intake.getPower() != 0;
+    public Command openGate() {
+        return new InstantCommand(lifter::openGate);
+    }
+
+    public Command closeGate() {
+        return new InstantCommand(lifter::closeGate);
+    }
+
+    public Intake.IntakeState getIntakeState() {
+        return intake.getIntakeState();
     }
 
     public boolean isFeederActive() {
         return feeder.getPower() != 0;
     }
-    public boolean isTransferActive() {
-        return transfer.getPower() != 0;
+    public Transfer.TransferState getTransferState() {
+        return transfer.getTransferState();
     }
 
     public boolean isLauncherActive() {
@@ -119,14 +133,23 @@ public class Robot {
         return launcher.getSwitcherPosition();
     }
 
+    public Lifter.GatePosition getGatePosition() {
+        return lifter.getGatePosition();
+    }
+
     public Telemetry getTelemetry() {
         telemetry.addData("Launcher Power", launcher.getPower());
         telemetry.addData("Switcher Position", launcher.getSwitcherPosition());
-        telemetry.addData("Transfer Power", transfer.getPower());
-        telemetry.addData("Feeder Power", feeder.getPower());
         telemetry.addData("Turret Angle", launcher.getAngle());
         telemetry.addData("Detection Angle", launcher.getClusterAngle());
-        telemetry.addData("Intake Power", intake.getPower());
+        telemetry.addLine("--------------------");
+        telemetry.addData("Intake State", intake.getIntakeState());
+        telemetry.addData("Transfer State", transfer.getTransferState());
+        telemetry.addData("Feeder Power", feeder.getPower());
+        telemetry.addLine("--------------------");
+        telemetry.addData("Gate Position", lifter.getGatePosition());
+        telemetry.addLine("--------------------");
+        telemetry.addData("Alliance", TransferData.ALLIANCE);
         return telemetry;
     }
 }

@@ -10,7 +10,10 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
+import org.firstinspires.ftc.teamcode.subsystems.Lifter;
+import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 
 @TeleOp(name = "One Controller TeleOp")
 public class OneController extends OpMode {
@@ -44,11 +47,11 @@ public class OneController extends OpMode {
                 .whenReleased(new InstantCommand(() -> limiter = 0.5));
 
         // Intake Start/Stop Button
-        driver1.getGamepadButton(GamepadKeys.Button.SQUARE)
+        driver1.getGamepadButton(GamepadKeys.Button.DPAD_UP)
                 .whenPressed(new ConditionalCommand(
                         robot.stopIntake(),
                         robot.startIntake(),
-                        () -> (robot.isIntakeActive())
+                        () -> (robot.getIntakeState() == Intake.IntakeState.ON)
                 ));
 
         // Feeder Toggle
@@ -76,11 +79,19 @@ public class OneController extends OpMode {
                 ));
 
         // Transfer Toggle
-        driver1.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+        driver1.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
                 .whenPressed(new ConditionalCommand(
                         robot.stopTransfer(),
                         robot.startTransfer(),
-                        () -> (robot.isTransferActive())
+                        () -> (robot.getTransferState() == Transfer.TransferState.ON)
+                ));
+
+        // Gate Toggle
+        driver1.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
+                .whenPressed(new ConditionalCommand(
+                        robot.closeGate(),
+                        robot.openGate(),
+                        () -> (robot.getGatePosition() == Lifter.GatePosition.OPEN)
                 ));
 
 //        // Autoaim
@@ -104,5 +115,11 @@ public class OneController extends OpMode {
         telemetry.addData("Drive Mode", driveState);
         telemetry.addData("Drive Limiter", limiter);
         telemetry.update();
+    }
+
+    @Override
+    public void stop() {
+        // Reset Command Scheduler
+        CommandScheduler.getInstance().reset();
     }
 }
