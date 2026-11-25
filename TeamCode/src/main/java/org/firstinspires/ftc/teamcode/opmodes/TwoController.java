@@ -13,6 +13,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Lifter;
 import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 
 @TeleOp(name = "Two Controller TeleOp")
@@ -91,6 +92,14 @@ public class TwoController extends OpMode {
                         robot.stopLauncher(),
                         robot.startLauncher(),
                         () -> (robot.isLauncherActive())
+                ));
+
+        // Gate Open/Close Button
+        driver2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenPressed(new ConditionalCommand(
+                        robot.closeGate(),
+                        robot.openGate(),
+                        () -> (robot.getGatePosition() == Lifter.GatePosition.OPEN)
                 ));
 
         // Telemetry
